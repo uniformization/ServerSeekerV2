@@ -1,0 +1,14 @@
+{
+  "connection_timeout": "3000",
+  "default_port": 25565,
+  "scan_output": "/home/funtimes909/Documents/Scanning/minecraft-servers2.json",
+  "token": ":3",
+  "database_url": "/home/funtimes909/serverseeker2.db",
+  "datapase_password": ":3",
+  "rescan": false,
+  "rescan_range": "25500-25600",
+  "rescan_subnet": "/24",
+  "masscan_packet_limit": "1000",
+  "masscan_sudo": false,
+  "masscan_exclude_file": "/home/funtimes909/exclude.conf"
+}

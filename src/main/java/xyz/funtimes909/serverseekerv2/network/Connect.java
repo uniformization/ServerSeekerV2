@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class Connect {

@@ -4,7 +4,6 @@ import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
 import xyz.funtimes909.serverseekerv2.builders.forge.Mod;
 
-import java.sql.Statement;
 import java.sql.*;
 import java.util.List;
 

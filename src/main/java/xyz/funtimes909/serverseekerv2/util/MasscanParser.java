@@ -5,21 +5,29 @@ import com.google.gson.Gson;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MasscanParser {
     public static List<Masscan> parse(String path) {
-        Gson gson = new Gson();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            Type serverList = new TypeToken<List<Masscan>>() {}.getType();
-            return gson.fromJson(reader, serverList);
+        try {
+            List<Masscan> list = new ArrayList<>();
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            reader.lines().forEach(line -> {
+                String[] array = line.split(" ");
+                // Ignore if the line commented out
+                if (!(array[0].charAt(0) == '#')) {
+                    Masscan server = new Masscan(array[3], Short.parseShort(array[2]));
+                    list.add(server);
+                }
+            });
+            return list;
         } catch (IOException e) {
-            System.out.println("File not found or malformed JSON input!");
+            throw new RuntimeException(e);
         }
-        return null;
     }
 }

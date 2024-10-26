@@ -7,12 +7,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseConnectionPool {
-
     private static final BasicDataSource dataSource = new BasicDataSource();
 
     public static void initPool(Config config) {
         dataSource.setUrl("jdbc:postgresql://" + config.getPostgresUrl());
-//        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUsername(config.getPostgresUser());
     }
 

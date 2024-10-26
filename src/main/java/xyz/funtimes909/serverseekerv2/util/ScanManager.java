@@ -31,26 +31,20 @@ public class ScanManager {
 
     public void scan() {
         List<Masscan> serverList = MasscanParser.parse(scanOutput);
-        if (serverList != null) {
-            iterate(serverList);
-        }
-
+        iterate(serverList);
     }
 
     public void iterate(List<Masscan> serverList) {
-        try {
-            for (Masscan server : serverList) {
-                Socket connection = Connect.connect(server.getIp(), server.getPorts().getFirst().getPort(), connectionTimeout);
-                if (connection != null) {
-                    String ping = Pinger.ping(connection);
-                    if (ping != null) {
-                        buildServer(ping, server, token, ignoreBots);
-                    }
+        for (Masscan server : serverList) {
+            Socket connection = Connect.connect(server.getIp(), server.getPort(), connectionTimeout);
+            if (connection != null) {
+                String ping = Pinger.ping(connection);
+                if (ping != null) {
+                    buildServer(ping, server, token, ignoreBots);
                 }
             }
-        } catch (Exception e) {
-            // Proper logging here
         }
+        // Recall method to scan the file again, assuming constant rescans with masscan are happening and overwriting the existing file
     }
 
     public static void buildServer(String json, Masscan masscan, String token, boolean ignoreBots) {
@@ -75,7 +69,7 @@ public class ScanManager {
 
             // Server information
             String address = masscan.getIp();
-            short port = masscan.getPorts().getFirst().getPort();
+            short port = masscan.getPort();
             long timestamp = System.currentTimeMillis() / 1000;
 
             // IP Information

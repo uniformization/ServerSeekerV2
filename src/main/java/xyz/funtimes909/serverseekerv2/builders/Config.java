@@ -5,8 +5,6 @@ import com.google.gson.annotations.SerializedName;
 public class Config {
     @SerializedName("connection_timeout")
     private int connectionTimeout;
-    @SerializedName("scan_output")
-    private String scanOutput;
     private String token;
     @SerializedName("postgres_url")
     private String postgresUrl;
@@ -16,15 +14,18 @@ public class Config {
     private String postgresPassword;
     @SerializedName("ignore_bots")
     private boolean ignoreBots;
+    @SerializedName("masscan_sudo")
+    private boolean masscanSudo;
+    @SerializedName("masscan_conf")
+    private String masscanConfigLocation;
+    @SerializedName("masscan_output")
+    private String masscanOutput;
 
     // Getters
     public int getConnectionTimeout() {
         return connectionTimeout;
     }
 
-    public String getScanOutput() {
-        return scanOutput;
-    }
 
     public String getToken() {
         return token;
@@ -44,5 +45,17 @@ public class Config {
 
     public boolean getIgnoreBots() {
         return ignoreBots;
+    }
+
+    public boolean getMasscanSudo() {
+        return masscanSudo;
+    }
+
+    public String getMasscanConfigLocation() {
+        return masscanConfigLocation;
+    }
+
+    public String getMasscanOutput() {
+        return masscanOutput;
     }
 }

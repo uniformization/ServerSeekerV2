@@ -1,21 +1,18 @@
 package xyz.funtimes909.serverseekerv2.builders;
-
+import java.util.List;
 @SuppressWarnings("unused")
 public class Masscan {
-    private final String ip;
-    private final short port;
-
-    public Masscan(String ip, short port) {
-        this.ip = ip;
-        this.port = port;
-    }
-
+    private String ip;
+    private int timestamp;
+    private List<Port> ports;
     // Getters
     public String getIp() {
         return ip;
     }
-
-    public short getPort() {
-        return port;
+    public int getTimestamp() {
+        return timestamp;
+    }
+    public List<Port> getPorts() {
+        return ports;
     }
 }

@@ -26,27 +26,27 @@ public class ScanManager {
 
     public ScanManager(Config config) {
         this.connectionTimeout = config.getConnectionTimeout();
-        this.scanOutput = config.getScanOutput();
+        this.scanOutput = config.getMasscanOutput();
         this.token = config.getToken();
         this.ignoreBots = config.getIgnoreBots();
     }
 
     public void scan() {
-        List<Masscan> serverList = MasscanParser.parse(scanOutput);
-        iterate(serverList);
-    }
+        List<Masscan> serverList = MasscanUtils.parse(scanOutput);
+        if (serverList == null) {
+            return;
+        }
 
-    public void iterate(List<Masscan> serverList) {
         for (Masscan server : serverList) {
-            Socket connection = Connect.connect(server.getIp(), server.getPort(), connectionTimeout);
-            if (connection != null) {
-                String ping = Pinger.ping(connection);
-                if (ping != null) {
-                    buildServer(ping, server, token, ignoreBots);
-                }
+            Socket connection = Connect.connect(server.getIp(), server.getPorts().getFirst().getPort(), connectionTimeout);
+
+            if (connection == null) continue;
+
+            String ping = Pinger.ping(connection);
+            if (ping != null) {
+                buildServer(ping, server, token, ignoreBots);
             }
         }
-        // Recall method to scan the file again, assuming constant rescans with masscan are happening and overwriting the existing file
     }
 
     public static void buildServer(String json, Masscan masscan, String token, boolean ignoreBots) {
@@ -57,11 +57,10 @@ public class ScanManager {
             String version = null;
             String motd = null;
             String icon = null;
-            String asn = null;
-            String country = null;
+            String asn;
+            String country;
             Boolean preventsChatReports = null;
             Boolean enforcesSecureChat = null;
-            Boolean whitelist = null;
             Boolean cracked = null;
             Integer protocol = null;
             Integer fmlNetworkVersion = null;
@@ -71,7 +70,7 @@ public class ScanManager {
 
             // Server information
             String address = masscan.getIp();
-            short port = masscan.getPort();
+            short port = masscan.getPorts().getFirst().getPort();
             long timestamp = System.currentTimeMillis() / 1000;
 
             // IP Information
@@ -130,7 +129,7 @@ public class ScanManager {
                             String name = playerJson.getAsJsonObject().get("name").getAsString();
                             String uuid = playerJson.getAsJsonObject().get("id").getAsString();
 
-                            // Skip building player if uuid is null, likely a bot
+                            // Skip building player if uuid is null, either anonymous player or a bot
                             if (uuid.equals("00000000-0000-0000-0000-000000000000") && ignoreBots) { continue; }
 
                             // Offline mode servers use v3 UUID's for players, while regular servers use v4, this is a really easy way to check if a server is offline mode
@@ -168,6 +167,7 @@ public class ScanManager {
 
             Database.updateServer(server);
         } catch (Exception e) {
+            // Proper logging here
             e.printStackTrace();
         }
     }

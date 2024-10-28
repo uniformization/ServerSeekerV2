@@ -1,9 +1,12 @@
 {
   "connection_timeout": "3000",
-  "scan_output": "/home/funtimes909/Documents/Scanning/minecraft-servers.txt",
-  "token": "TOKEN_HERE",
+  "default_port": 25565,
+  "token": "IPINFO_TOKEN",
   "postgres_url": "localhost:5432/",
   "postgres_user": "postgres",
-  "postgres_password": "POSTGRES_PASSWORD",
-  "ignore_bots": true
+  "postgres_password": ":3",
+  "ignore_bots": true,
+  "masscan_sudo": true,
+  "masscan_conf": "serverseekerv2.conf",
+  "masscan_output": "minecraft-servers.json"
 }

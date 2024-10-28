@@ -26,7 +26,6 @@ public class Config {
         return connectionTimeout;
     }
 
-
     public String getToken() {
         return token;
     }

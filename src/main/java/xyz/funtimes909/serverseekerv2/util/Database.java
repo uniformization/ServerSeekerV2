@@ -1,9 +1,10 @@
 package xyz.funtimes909.serverseekerv2.util;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import xyz.funtimes909.serverseekerv2.Main;
+import xyz.funtimes909.serverseekerv2.builders.Mod;
 import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
-import xyz.funtimes909.serverseekerv2.builders.Mod;
 
 import java.sql.*;
 import java.util.List;
@@ -12,9 +13,9 @@ public class Database{
     // Connection pooling
     private static final BasicDataSource dataSource = new BasicDataSource();
 
-    public static void initPool(String url, String username) {
-        dataSource.setUrl("jdbc:postgresql://" + url);
-        dataSource.setUsername(username);
+    public static void initPool() {
+        dataSource.setUrl("jdbc:postgresql://" + Main.postgres_url);
+        dataSource.setUsername(Main.postgres_user);
     }
 
     public static Connection getConnection() {

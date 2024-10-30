@@ -1,8 +1,8 @@
 package xyz.funtimes909.serverseekerv2;
 
 import xyz.funtimes909.serverseekerv2.builders.Config;
-import xyz.funtimes909.serverseekerv2.util.Database;
 import xyz.funtimes909.serverseekerv2.util.ConfigParser;
+import xyz.funtimes909.serverseekerv2.util.Database;
 import xyz.funtimes909.serverseekerv2.util.MasscanUtils;
 import xyz.funtimes909.serverseekerv2.util.ScanManager;
 

@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public class Pinger {
-
     public static final byte[] REQUEST = new byte[] {
             6, // Size: Amount of proceeding bytes [varint]
             0, // ID: Has to be 0

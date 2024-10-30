@@ -14,8 +14,6 @@ public class Config {
     private String postgresPassword;
     @SerializedName("ignore_bots")
     private boolean ignoreBots;
-    @SerializedName("masscan_sudo")
-    private boolean masscanSudo;
     @SerializedName("masscan_conf")
     private String masscanConfigLocation;
     @SerializedName("masscan_output")
@@ -44,10 +42,6 @@ public class Config {
 
     public boolean getIgnoreBots() {
         return ignoreBots;
-    }
-
-    public boolean getMasscanSudo() {
-        return masscanSudo;
     }
 
     public String getMasscanConfigLocation() {

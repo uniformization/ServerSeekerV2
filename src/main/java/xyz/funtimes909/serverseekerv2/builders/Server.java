@@ -1,13 +1,10 @@
 package xyz.funtimes909.serverseekerv2.builders;
 
-import xyz.funtimes909.serverseekerv2.builders.forge.Mod;
-
 import java.util.List;
 
 public class Server {
     private final List<Player> players;
     private final List<Mod> mods;
-    private final String serverType;
     private final String version;
     private final String motd;
     private final String icon;
@@ -18,7 +15,7 @@ public class Server {
     private final short port;
     private final Integer protocol;
     private final Integer fmlNetworkVersion;
-    private final int timeSeen;
+    private final int timesSeen;
     private final long timestamp;
     private final Boolean whitelist;
     private final Boolean cracked;
@@ -31,10 +28,6 @@ public class Server {
 
     public List<Mod> getMods() {
         return mods;
-    }
-
-    public String getServerType() {
-        return serverType;
     }
 
     public String getVersion() {
@@ -77,8 +70,8 @@ public class Server {
         return fmlNetworkVersion;
     }
 
-    public int getTimeSeen() {
-        return timeSeen;
+    public int getTimesSeen() {
+        return timesSeen;
     }
 
     public long getTimestamp() {
@@ -104,7 +97,6 @@ public class Server {
     private Server(Builder builder) {
         this.players = builder.players;
         this.mods = builder.mods;
-        this.serverType = builder.serverType;
         this.version = builder.version;
         this.motd = builder.motd;
         this.icon = builder.icon;
@@ -115,7 +107,7 @@ public class Server {
         this.port = builder.port;
         this.protocol = builder.protocol;
         this.fmlNetworkVersion = builder.fmlNetworkVersion;
-        this.timeSeen = builder.timesSeen;
+        this.timesSeen = builder.timesSeen;
         this.timestamp = builder.timestamp;
         this.whitelist = builder.whitelist;
         this.cracked = builder.cracked;
@@ -126,7 +118,6 @@ public class Server {
     public static class Builder {
         private List<Player> players;
         private List<Mod> mods;
-        private String serverType;
         private String version;
         private String motd;
         private String icon;
@@ -152,11 +143,6 @@ public class Server {
 
         public Builder setMods(List<Mod> mods) {
             this.mods = mods;
-            return this;
-        }
-
-        public Builder setType(String type) {
-            this.serverType = type;
             return this;
         }
 

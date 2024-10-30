@@ -1,4 +1,4 @@
-package xyz.funtimes909.serverseekerv2.builders.forge;
+package xyz.funtimes909.serverseekerv2.builders;
 
 import com.google.gson.annotations.SerializedName;
 

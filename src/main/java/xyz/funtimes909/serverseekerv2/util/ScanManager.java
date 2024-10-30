@@ -3,14 +3,10 @@ package xyz.funtimes909.serverseekerv2.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import xyz.funtimes909.serverseekerv2.builders.Config;
-import xyz.funtimes909.serverseekerv2.builders.Masscan;
-import xyz.funtimes909.serverseekerv2.builders.Player;
-import xyz.funtimes909.serverseekerv2.builders.Server;
-import xyz.funtimes909.serverseekerv2.builders.forge.Mod;
-import xyz.funtimes909.serverseekerv2.database.Database;
-import xyz.funtimes909.serverseekerv2.network.AsnLookup;
+import xyz.funtimes909.serverseekerv2.Main;
+import xyz.funtimes909.serverseekerv2.builders.*;
 import xyz.funtimes909.serverseekerv2.network.Connect;
+import xyz.funtimes909.serverseekerv2.network.IpInfo;
 import xyz.funtimes909.serverseekerv2.network.Pinger;
 
 import java.net.Socket;
@@ -19,37 +15,22 @@ import java.util.List;
 import java.util.UUID;
 
 public class ScanManager {
-    private final int connectionTimeout;
-    private final String scanOutput;
-    private final String token;
-    private final boolean ignoreBots;
-
-    public ScanManager(Config config) {
-        this.connectionTimeout = config.getConnectionTimeout();
-        this.scanOutput = config.getMasscanOutput();
-        this.token = config.getToken();
-        this.ignoreBots = config.getIgnoreBots();
-    }
-
-    public void scan() {
-        List<Masscan> serverList = MasscanUtils.parse(scanOutput);
-        if (serverList == null) {
-            return;
-        }
+    public static void scan() {
+        List<Masscan> serverList = MasscanUtils.parse(Main.masscan_output);
+        if (serverList == null) return;
 
         for (Masscan server : serverList) {
-            Socket connection = Connect.connect(server.getIp(), server.getPorts().getFirst().getPort(), connectionTimeout);
+            Socket connection = Connect.connect(server.getIp(), server.getPorts().getFirst().getPort());
 
             if (connection == null) continue;
 
-            String ping = Pinger.ping(connection);
-            if (ping != null) {
-                buildServer(ping, server, token, ignoreBots);
-            }
+            String json = Pinger.ping(connection);
+            if (json != null) buildServer(json, server);
+
         }
     }
 
-    public static void buildServer(String json, Masscan masscan, String token, boolean ignoreBots) {
+    public static void buildServer(String json, Masscan masscan) {
         try {
             JsonObject parsedJson = JsonParser.parseString(json).getAsJsonObject();
 
@@ -74,8 +55,8 @@ public class ScanManager {
             long timestamp = System.currentTimeMillis() / 1000;
 
             // IP Information
-            asn = AsnLookup.lookup(address, token);
-            country = AsnLookup.lookup(address, token);
+            asn = IpInfo.lookupAsn(address);
+            country = IpInfo.lookupCountry(address);
 
             // Minecraft server information
             if (parsedJson.has("version")) {
@@ -130,12 +111,10 @@ public class ScanManager {
                             String uuid = playerJson.getAsJsonObject().get("id").getAsString();
 
                             // Skip building player if uuid is null, either anonymous player or a bot
-                            if (uuid.equals("00000000-0000-0000-0000-000000000000") && ignoreBots) { continue; }
+                            if (uuid.equals("00000000-0000-0000-0000-000000000000") && Main.ignore_bots) continue;
 
                             // Offline mode servers use v3 UUID's for players, while regular servers use v4, this is a really easy way to check if a server is offline mode
-                            if (UUID.fromString(uuid).version() == 3) {
-                                cracked = true;
-                            }
+                            if (UUID.fromString(uuid).version() == 3) cracked = true;
 
                             Player player = new Player(name, uuid, timestamp);
                             playerList.add(player);

@@ -1,38 +1,51 @@
 package xyz.funtimes909.serverseekerv2;
 
 import xyz.funtimes909.serverseekerv2.builders.Config;
-import xyz.funtimes909.serverseekerv2.database.Database;
-import xyz.funtimes909.serverseekerv2.database.DatabaseConnectionPool;
+import xyz.funtimes909.serverseekerv2.util.Database;
 import xyz.funtimes909.serverseekerv2.util.ConfigParser;
 import xyz.funtimes909.serverseekerv2.util.MasscanUtils;
 import xyz.funtimes909.serverseekerv2.util.ScanManager;
 
 public class Main {
-    public static void main(String[] args) {
-        String config;
+    public static int connection_timeout;
+    public static boolean ignore_bots;
+    public static String token;
+    public static String postgres_url;
+    public static String postgres_user;
+    public static String postgres_password;
+    public static String masscan_conf;
+    public static String masscan_output;
 
-        // Enforce setting config on launch
+    public static void main(String[] args) {
+        String configFile;
+
+        // Set config file
         if (args.length == 0) {
             System.out.println("Usage: java -jar serverseekerv2.jar --config <file>");
             return;
         } else {
-            config = args[1];
+            configFile = args[1];
         }
 
-        // Parse config file and init database connection pool
-        Config configFile = ConfigParser.parse(config);
-        DatabaseConnectionPool.initPool(configFile);
+        // Parse config file and set attributes
+        Config config = ConfigParser.parse(configFile);
+        connection_timeout = config.getConnectionTimeout();
+        ignore_bots = config.getIgnoreBots();
+        token = config.getToken();
+        postgres_url = config.getPostgresUrl();
+        postgres_user = config.getPostgresUser();
+        postgres_password = config.getPostgresPassword();
+        masscan_conf = config.getMasscanConfigLocation();
+        masscan_output = config.getMasscanOutput();
 
-        // Create the required database tables if they don't exist
+        // Init database connection pool and create tables if they don't exist
+        Database.initPool(postgres_url, postgres_user);
         Database.createIfNotExist();
 
-        MasscanUtils masscanRunner = new MasscanUtils(configFile);
-        ScanManager scanner = new ScanManager(configFile);
-
-        // TODO Make this async with a callback
+        // TODO Make this not bad
         while (true) {
-            masscanRunner.run();
-            scanner.scan();
+            MasscanUtils.run();
+            ScanManager.scan();
         }
 
     }

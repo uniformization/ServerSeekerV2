@@ -1,15 +1,33 @@
-package xyz.funtimes909.serverseekerv2.database;
+package xyz.funtimes909.serverseekerv2.util;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
-import xyz.funtimes909.serverseekerv2.builders.forge.Mod;
+import xyz.funtimes909.serverseekerv2.builders.Mod;
 
 import java.sql.*;
 import java.util.List;
 
 public class Database{
+    // Connection pooling
+    private static final BasicDataSource dataSource = new BasicDataSource();
+
+    public static void initPool(String url, String username) {
+        dataSource.setUrl("jdbc:postgresql://" + url);
+        dataSource.setUsername(username);
+    }
+
+    public static Connection getConnection() {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            System.out.println("Failed to connect to database!");
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void createIfNotExist() {
-        Connection conn = new DatabaseConnectionPool().getConnection();
+        Connection conn = getConnection();
         try {
             Statement tables = conn.createStatement();
             // Servers
@@ -55,7 +73,6 @@ public class Database{
                     "FOREIGN KEY (Address, Port) REFERENCES Servers(Address, Port))");
 
             tables.executeBatch();
-
         } catch (SQLException e) {
             // Proper logging
             e.printStackTrace();
@@ -63,7 +80,7 @@ public class Database{
     }
 
     public static void updateServer(Server server) {
-        Connection conn = new DatabaseConnectionPool().getConnection();
+        Connection conn = getConnection();
         try {
             String address = server.getAddress();
             short port = server.getPort();
@@ -75,7 +92,7 @@ public class Database{
             Integer fmlNetworkVersion = server.getFmlNetworkVersion();
             String motd = server.getMotd();
             String icon = server.getIcon();
-            int timesSeen = server.getTimeSeen();
+            int timesSeen = server.getTimesSeen();
             Boolean preventsReports = server.getPreventsReports();
             Boolean enforceSecure = server.getEnforceSecure();
             Boolean whitelist = server.getWhitelist();

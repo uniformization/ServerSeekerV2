@@ -2,7 +2,7 @@ package xyz.funtimes909.serverseekerv2.util;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import xyz.funtimes909.serverseekerv2.builders.Config;
+import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 
 import java.io.BufferedReader;
@@ -12,21 +12,14 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 public class MasscanUtils {
-    private final Config config;
-
-    public MasscanUtils(Config config) {
-        this.config = config;
-    }
-
-    public void run() {
-        // Build command to run
-        StringBuilder command = new StringBuilder("masscan -c" + config.getMasscanConfigLocation());
-        if (config.getMasscanSudo()) {
-            command.insert(0, "sudo ");
+    public static void run() {
+        // Create process and modify attributes
+        ProcessBuilder processBuilder;
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            processBuilder = new ProcessBuilder("cmd.exe", "masscan -c " + Main.masscan_conf);
+        } else {
+            processBuilder = new ProcessBuilder("/bin/sh", "-c", "masscan -c " + Main.masscan_conf);
         }
-
-        // Create process and run
-        ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", command.toString());
         processBuilder.inheritIO();
 
         // Run the process

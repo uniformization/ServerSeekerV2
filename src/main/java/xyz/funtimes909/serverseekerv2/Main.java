@@ -1,8 +1,8 @@
 package xyz.funtimes909.serverseekerv2;
 
 import xyz.funtimes909.serverseekerv2.builders.Config;
-import xyz.funtimes909.serverseekerv2.util.Database;
 import xyz.funtimes909.serverseekerv2.util.ConfigParser;
+import xyz.funtimes909.serverseekerv2.util.Database;
 import xyz.funtimes909.serverseekerv2.util.MasscanUtils;
 import xyz.funtimes909.serverseekerv2.util.ScanManager;
 
@@ -39,7 +39,7 @@ public class Main {
         masscan_output = config.getMasscanOutput();
 
         // Init database connection pool and create tables if they don't exist
-        Database.initPool(postgres_url, postgres_user);
+        Database.initPool();
         Database.createIfNotExist();
 
         // TODO Make this not bad

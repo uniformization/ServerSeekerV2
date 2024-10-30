@@ -1,5 +1,7 @@
 package xyz.funtimes909.serverseekerv2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.funtimes909.serverseekerv2.builders.Config;
 import xyz.funtimes909.serverseekerv2.util.ConfigParser;
 import xyz.funtimes909.serverseekerv2.util.Database;
@@ -15,13 +17,14 @@ public class Main {
     public static String postgres_password;
     public static String masscan_conf;
     public static String masscan_output;
+    public static final Logger logger = LoggerFactory.getLogger("ServerSeekerV2");
 
     public static void main(String[] args) {
         String configFile;
 
         // Set config file
         if (args.length == 0) {
-            System.out.println("Usage: java -jar serverseekerv2.jar --config <file>");
+            logger.error("Usage: java -jar serverseekerv2.jar --config <file>");
             return;
         } else {
             configFile = args[1];
@@ -44,7 +47,7 @@ public class Main {
 
         // TODO Make this not bad
         while (true) {
-            MasscanUtils.run();
+//            MasscanUtils.run();
             ScanManager.scan();
         }
 

@@ -22,13 +22,13 @@ public class Database{
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
-            System.out.println("Failed to connect to database!");
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to connect to database!");
         }
     }
 
     public static void createIfNotExist() {
         Connection conn = getConnection();
+        Main.logger.info("Attempting to create database tables...");
         try {
             Statement tables = conn.createStatement();
             // Servers
@@ -75,8 +75,8 @@ public class Database{
 
             tables.executeBatch();
         } catch (SQLException e) {
-            // Proper logging
-            e.printStackTrace();
+            Main.logger.error("Failed to create database tables!");
+            e.getMessage();
         }
     }
 
@@ -162,6 +162,7 @@ public class Database{
             insertServer.setObject(18, onlinePlayers, Types.INTEGER);
             insertServer.executeUpdate();
             insertServer.close();
+            Main.logger.info("Added {} to the database!", server.getAddress());
 
             // Add players, update LastSeen and Name (Potential name change) if duplicate
             PreparedStatement updatePlayers = conn.prepareStatement("INSERT INTO PlayerHistory (Address, Port, PlayerUUID, PlayerName, FirstSeen, LastSeen) VALUES (?, ?, ?, ?, ?, ?) " +
@@ -201,7 +202,9 @@ public class Database{
             updatePlayers.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            Main.logger.error("Database error!");
+            e.getMessage();        Main.logger.info("Attempting to ");
+
         }
     }
 }

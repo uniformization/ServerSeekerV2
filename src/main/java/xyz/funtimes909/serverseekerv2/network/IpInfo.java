@@ -12,8 +12,8 @@ public class IpInfo {
         try {
             return ipInfo.lookupIP(ip).getCountryName();
         } catch (RateLimitedException e) {
-            System.out.println("GeoIP lookup rate limited! Trying secondary API");
-            return "No country information avaliable";
+            Main.logger.warn("Country lookup rate limited! Trying secondary API");
+            return null;
             // TODO More stuff here
         }
     }
@@ -25,8 +25,8 @@ public class IpInfo {
         try {
             return asnInfo.lookupASN(ip).getAsn();
         } catch (RateLimitedException e) {
-            System.out.println("ASN Lookup rate limited! Trying secondary API");
-            return "No country information avaliable";
+            Main.logger.warn("ASN lookup rate limited! Trying secondary API");
+            return null;
             // TODO More stuff here
         }
     }

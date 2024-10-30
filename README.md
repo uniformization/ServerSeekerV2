@@ -16,7 +16,6 @@ This is just a backend, there's no frontend for easily searching for servers fro
 ServerSeekerV2 is **NOT** production ready! Please report any issues that you find, although i'm probably aware of most of them already, it would be good to track them.
 
 Currently, lacking features are:
-- Proper logging
 - Async and concurrency support (it will be unusably slow for large scans)
 - General code cleanup and refactoring
 

@@ -1,5 +1,6 @@
 package xyz.funtimes909.serverseekerv2.network;
 
+import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.util.VarInt;
 
 import java.io.IOException;
@@ -36,7 +37,8 @@ public class Pinger {
             // Finally read the bytes
             byte[] status = in.readNBytes(json_length);
             return new String(status);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException e) {
+            Main.logger.error("Pinger error", e);
             return null;
         }
     }

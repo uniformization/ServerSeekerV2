@@ -27,22 +27,20 @@ public class MasscanUtils {
             Process process = processBuilder.start();
             process.waitFor();
         } catch (IOException | InterruptedException e) {
-            Main.logger.error("Failed to run masscan!");
-            e.getMessage();
+            Main.logger.error("Failed to run masscan!", e);
         }
     }
 
     public static List<Masscan> parse(String path) {
         Gson gson = new Gson();
 
-        // Parse masscan output directly to a masscan object
+        // Parse masscan output to a list of Masscan objects
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             Type serverList = new TypeToken<List<Masscan>>() {}.getType();
             return gson.fromJson(reader, serverList);
         } catch (IOException e) {
-            Main.logger.error("File not found or malformed JSON input!");
-            e.getMessage();
+            Main.logger.error("Masscan output not found or malformed JSON!", e);
+            return null;
         }
-        return null;
     }
 }

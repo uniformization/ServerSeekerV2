@@ -75,8 +75,7 @@ public class Database{
 
             tables.executeBatch();
         } catch (SQLException e) {
-            Main.logger.error("Failed to create database tables!");
-            e.getMessage();
+            Main.logger.error("Failed to create database tables!", e);
         }
     }
 
@@ -162,7 +161,6 @@ public class Database{
             insertServer.setObject(18, onlinePlayers, Types.INTEGER);
             insertServer.executeUpdate();
             insertServer.close();
-            Main.logger.info("Added {} to the database!", server.getAddress());
 
             // Add players, update LastSeen and Name (Potential name change) if duplicate
             PreparedStatement updatePlayers = conn.prepareStatement("INSERT INTO PlayerHistory (Address, Port, PlayerUUID, PlayerName, FirstSeen, LastSeen) VALUES (?, ?, ?, ?, ?, ?) " +
@@ -197,14 +195,12 @@ public class Database{
                     updateMods.setString(3, mod.getModId());
                     updateMods.setString(4, mod.getModMarker());
                     updateMods.executeUpdate();
-            }
+                }
             // Close connection out of loop
             updatePlayers.close();
-
+            Main.logger.info("Added {} to the database!", server.getAddress());
         } catch (SQLException e) {
-            Main.logger.error("Database error!");
-            e.getMessage();        Main.logger.info("Attempting to ");
-
+            Main.logger.error("Database error!", e);
         }
     }
 }

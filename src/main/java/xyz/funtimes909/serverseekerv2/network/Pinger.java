@@ -38,7 +38,6 @@ public class Pinger {
             byte[] status = in.readNBytes(json_length);
             return new String(status);
         } catch (IOException e) {
-            Main.logger.error("Pinger error", e);
             return null;
         }
     }

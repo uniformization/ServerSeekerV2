@@ -47,7 +47,7 @@ public class Main {
 
         // TODO Make this not bad
         while (true) {
-//            MasscanUtils.run();
+            MasscanUtils.run();
             ScanManager.scan();
         }
 

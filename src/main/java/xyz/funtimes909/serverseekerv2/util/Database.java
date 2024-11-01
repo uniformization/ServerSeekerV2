@@ -163,31 +163,34 @@ public class Database{
             insertServer.close();
 
             // Add players, update LastSeen and Name (Potential name change) if duplicate
-            PreparedStatement updatePlayers = conn.prepareStatement("INSERT INTO PlayerHistory (Address, Port, PlayerUUID, PlayerName, FirstSeen, LastSeen) VALUES (?, ?, ?, ?, ?, ?) " +
-                    "ON CONFLICT (Address, Port, PlayerUUID) DO UPDATE SET " +
-                    "LastSeen = EXCLUDED.LastSeen," +
-                    "PlayerName = EXCLUDED.PlayerName");
+            if (!players.isEmpty()) {
+                PreparedStatement updatePlayers = conn.prepareStatement("INSERT INTO PlayerHistory (Address, Port, PlayerUUID, PlayerName, FirstSeen, LastSeen) VALUES (?, ?, ?, ?, ?, ?) " +
+                        "ON CONFLICT (Address, Port, PlayerUUID) DO UPDATE SET " +
+                        "LastSeen = EXCLUDED.LastSeen," +
+                        "PlayerName = EXCLUDED.PlayerName");
 
                 // Constants
                 updatePlayers.setString(1, address);
                 updatePlayers.setShort(2, port);
 
-            for (Player player : players) {
-                updatePlayers.setString(3, player.getUuid());
-                updatePlayers.setString(4, player.getName());
-                updatePlayers.setLong(5, player.getTimestamp());
-                updatePlayers.setLong(6, player.getTimestamp());
-                updatePlayers.addBatch();
+                for (Player player : players) {
+                    updatePlayers.setString(3, player.getUuid());
+                    updatePlayers.setString(4, player.getName());
+                    updatePlayers.setLong(5, player.getTimestamp());
+                    updatePlayers.setLong(6, player.getTimestamp());
+                    updatePlayers.addBatch();
+                }
+
+                // Execute and close
+                updatePlayers.executeBatch();
+                updatePlayers.close();
             }
 
-            // Execute and close
-            updatePlayers.executeBatch();
-            updatePlayers.close();
-
             // Add mods, do nothing if duplicate
-            PreparedStatement updateMods = conn.prepareStatement("INSERT INTO Mods (Address, Port, ModId, ModMarker) " +
-                    "VALUES (?, ?, ?, ?)" +
-                    "ON CONFLICT (Address, Port, ModId) DO NOTHING");
+            if (!mods.isEmpty()) {
+                PreparedStatement updateMods = conn.prepareStatement("INSERT INTO Mods (Address, Port, ModId, ModMarker) " +
+                        "VALUES (?, ?, ?, ?)" +
+                        "ON CONFLICT (Address, Port, ModId) DO NOTHING");
 
                 // Constants
                 updateMods.setString(1, address);
@@ -201,7 +204,8 @@ public class Database{
 
                 // Execute and close
                 updateMods.executeBatch();
-                updatePlayers.close();
+                updateMods.close();
+            }
         } catch (SQLException e) {
             Main.logger.error("There was an error during a database transaction!", e);
         }

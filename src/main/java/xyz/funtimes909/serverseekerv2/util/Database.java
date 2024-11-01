@@ -28,9 +28,8 @@ public class Database{
     }
 
     public static void createIfNotExist() {
-        Connection conn = getConnection();
         Main.logger.info("Attempting to create database tables...");
-        try {
+        try (Connection conn = getConnection()) {
             Statement tables = conn.createStatement();
             // Servers
             tables.addBatch("CREATE TABLE IF NOT EXISTS Servers (" +
@@ -82,8 +81,7 @@ public class Database{
     }
 
     public static void updateServer(Server server) {
-        Connection conn = getConnection();
-        try {
+        try (Connection conn = getConnection()) {
             String address = server.getAddress();
             short port = server.getPort();
             long timestamp = server.getTimestamp();
@@ -179,10 +177,11 @@ public class Database{
                 updatePlayers.setString(4, player.getName());
                 updatePlayers.setLong(5, player.getTimestamp());
                 updatePlayers.setLong(6, player.getTimestamp());
-                updatePlayers.executeUpdate();
+                updatePlayers.addBatch();
             }
 
-            // Close connection out of loop
+            // Execute and close
+            updatePlayers.executeBatch();
             updatePlayers.close();
 
             // Add mods, do nothing if duplicate
@@ -197,10 +196,12 @@ public class Database{
                 for (Mod mod : mods) {
                     updateMods.setString(3, mod.getModId());
                     updateMods.setString(4, mod.getModMarker());
-                    updateMods.executeUpdate();
+                    updateMods.addBatch();
                 }
 
-            updatePlayers.close();
+                // Execute and close
+                updateMods.executeBatch();
+                updatePlayers.close();
         } catch (SQLException e) {
             Main.logger.error("There was an error during a database transaction!", e);
         }

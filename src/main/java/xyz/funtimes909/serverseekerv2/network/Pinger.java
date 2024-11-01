@@ -36,8 +36,10 @@ public class Pinger {
             int json_length = VarInt.decode_varint(in);
             // Finally read the bytes
             byte[] status = in.readNBytes(json_length);
+            connection.close();
             return new String(status);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Main.logger.warn("Something happened with {}", connection.getRemoteSocketAddress().toString(), e);
             return null;
         }
     }

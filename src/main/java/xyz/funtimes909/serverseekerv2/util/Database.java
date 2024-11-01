@@ -15,6 +15,7 @@ public class Database{
 
     public static void initPool() {
         dataSource.setUrl("jdbc:postgresql://" + Main.postgres_url);
+        dataSource.setPassword(Main.postgres_password);
         dataSource.setUsername(Main.postgres_user);
     }
 
@@ -22,7 +23,7 @@ public class Database{
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to connect to database!");
+            throw new RuntimeException("Failed to connect to database!", e);
         }
     }
 
@@ -74,6 +75,7 @@ public class Database{
                     "FOREIGN KEY (Address, Port) REFERENCES Servers(Address, Port))");
 
             tables.executeBatch();
+            tables.close();
         } catch (SQLException e) {
             Main.logger.error("Failed to create database tables!", e);
         }
@@ -196,7 +198,7 @@ public class Database{
                     updateMods.setString(4, mod.getModMarker());
                     updateMods.executeUpdate();
                 }
-            // Close connection out of loop
+            // Close connection
             updatePlayers.close();
             Main.logger.info("Added {} to the database!", server.getAddress());
         } catch (SQLException e) {

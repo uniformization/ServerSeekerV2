@@ -17,8 +17,7 @@ public class ConfigParser {
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             return gson.fromJson(reader, Config.class);
         } catch (IOException e) {
-            Main.logger.error("Config file not found or malformed json!");
-            throw new RuntimeException();
+            throw new RuntimeException("Config file not found or malformed json!");
         }
     }
 }

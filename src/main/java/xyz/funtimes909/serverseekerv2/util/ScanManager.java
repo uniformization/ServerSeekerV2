@@ -3,6 +3,8 @@ package xyz.funtimes909.serverseekerv2.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.Strictness;
+import com.google.gson.stream.JsonReader;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 import xyz.funtimes909.serverseekerv2.builders.Mod;
@@ -12,35 +14,52 @@ import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.IpInfo;
 import xyz.funtimes909.serverseekerv2.network.Pinger;
 
+import java.io.StringReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 public class ScanManager {
-    public static void scan() {
+    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+    public static void scan() throws InterruptedException {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscan_output);
         if (serverList == null) return;
 
+        List<Runnable> tasks = new ArrayList<>();
+
         for (Masscan server : serverList) {
-            Socket connection = Connect.connect(server.getIp(), server.getPorts().getFirst().getPort());
+            Runnable task = () -> {
+                Socket connection = Connect.connect(server.getIp(), server.getPorts().getFirst().getPort());
+                if (connection == null) return;
+                String json = Pinger.ping(connection);
+                if (json != null) buildServer(json, server);
+            };
+            tasks.add(task);
+        }
 
-            if (connection == null) continue;
-
-            String json = Pinger.ping(connection);
-            if (json != null) buildServer(json, server);
+        for (Runnable task : tasks) {
+            executor.execute(task);
         }
     }
 
     public static void buildServer(String json, Masscan masscan) {
+        JsonReader reader = new JsonReader(new StringReader(json));
+        reader.setStrictness(Strictness.LENIENT);
+
         JsonObject parsedJson = JsonParser.parseString(json).getAsJsonObject();
 
         // Define variables as wrappers to allow null values
         String version = null;
         String motd = null;
         String icon = null;
-        String asn;
-        String country;
+        String asn = null;
+        String country = null;
         Boolean preventsChatReports = null;
         Boolean enforcesSecureChat = null;
         Boolean cracked = null;
@@ -55,9 +74,10 @@ public class ScanManager {
         short port = masscan.getPorts().getFirst().getPort();
         long timestamp = System.currentTimeMillis() / 1000;
 
-        // IP Information
-        asn = IpInfo.lookupAsn(address);
-        country = IpInfo.lookupCountry(address);
+        if (!Main.token.isEmpty()) {
+            asn = IpInfo.lookupAsn(address);
+            country = IpInfo.lookupCountry(address);
+        }
 
         // Minecraft server information
         if (parsedJson.has("version")) {
@@ -145,6 +165,7 @@ public class ScanManager {
                 .setMods(modsList)
                 .build();
 
+        Main.logger.info("built server " + server.getAddress());
         Database.updateServer(server);
     }
 }

@@ -132,7 +132,7 @@ public class ScanManager {
                         String uuid = playerJson.getAsJsonObject().get("id").getAsString();
 
                         // Skip building player if uuid is null, either anonymous player or a bot
-                        if (uuid.equals("00000000-0000-0000-0000-000000000000") && Main.ignore_bots) continue;
+                        if (uuid.equals("00000000-0000-0000-0000-000000000000") || name.contains(" ") || name.isBlank() && Main.ignore_bots) continue;
 
                         // Offline mode servers use v3 UUID's for players, while regular servers use v4, this is a really easy way to check if a server is offline mode
                         if (UUID.fromString(uuid).version() == 3) cracked = true;

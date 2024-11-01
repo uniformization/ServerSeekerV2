@@ -3,7 +3,6 @@ package xyz.funtimes909.serverseekerv2.network;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.util.VarInt;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -36,10 +35,12 @@ public class Pinger {
             int json_length = VarInt.decode_varint(in);
             // Finally read the bytes
             byte[] status = in.readNBytes(json_length);
+            // Close all resources
             connection.close();
+            in.close();
+            out.close();
             return new String(status);
         } catch (Exception e) {
-            Main.logger.warn("Something happened with {}", connection.getRemoteSocketAddress().toString(), e);
             return null;
         }
     }

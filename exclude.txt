@@ -2445,3 +2445,6 @@
 213.239.251.130
 213.239.251.190
 213.239.251.211
+
+# People that have requested to have their address excluded
+45.133.36.229

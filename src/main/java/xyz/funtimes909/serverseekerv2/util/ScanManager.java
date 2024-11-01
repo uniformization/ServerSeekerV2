@@ -3,8 +3,6 @@ package xyz.funtimes909.serverseekerv2.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.Strictness;
-import com.google.gson.stream.JsonReader;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 import xyz.funtimes909.serverseekerv2.builders.Mod;
@@ -14,20 +12,17 @@ import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.IpInfo;
 import xyz.funtimes909.serverseekerv2.network.Pinger;
 
-import java.io.StringReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
-    public static void scan() throws InterruptedException {
+    public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscan_output);
         if (serverList == null) return;
 
@@ -49,9 +44,6 @@ public class ScanManager {
     }
 
     public static void buildServer(String json, Masscan masscan) {
-        JsonReader reader = new JsonReader(new StringReader(json));
-        reader.setStrictness(Strictness.LENIENT);
-
         JsonObject parsedJson = JsonParser.parseString(json).getAsJsonObject();
 
         // Define variables as wrappers to allow null values
@@ -66,6 +58,7 @@ public class ScanManager {
         Integer protocol = null;
         Integer fmlNetworkVersion = null;
         Integer maxPlayers = null;
+        Integer onlinePlayers = null;
         List<Player> playerList = new ArrayList<>();
         List<Mod> modsList = new ArrayList<>();
 
@@ -74,7 +67,8 @@ public class ScanManager {
         short port = masscan.getPorts().getFirst().getPort();
         long timestamp = System.currentTimeMillis() / 1000;
 
-        if (!Main.token.isEmpty()) {
+        // Prevent a whole load of issues if the token doesn't exist
+        if (!Main.token.isBlank()) {
             asn = IpInfo.lookupAsn(address);
             country = IpInfo.lookupCountry(address);
         }
@@ -110,7 +104,6 @@ public class ScanManager {
         // Forge servers send back information about mods
         if (parsedJson.has("forgeData")) {
             fmlNetworkVersion = parsedJson.get("forgeData").getAsJsonObject().get("fmlNetworkVersion").getAsInt();
-            // Build Modlist
             if (parsedJson.get("forgeData").getAsJsonObject().has("mods")) {
                 for (JsonElement modJson : parsedJson.get("forgeData").getAsJsonObject().get("mods").getAsJsonArray().asList()) {
                     String modId = modJson.getAsJsonObject().get("modId").getAsString();
@@ -122,16 +115,17 @@ public class ScanManager {
             }
         }
 
-        // Check for players and build if found
+        // Check for players
         if (parsedJson.has("players")) {
             maxPlayers = parsedJson.get("players").getAsJsonObject().get("max").getAsInt();
+            onlinePlayers = parsedJson.get("players").getAsJsonObject().get("online").getAsInt();
             if (parsedJson.get("players").getAsJsonObject().has("sample")) {
                 for (JsonElement playerJson : parsedJson.get("players").getAsJsonObject().get("sample").getAsJsonArray().asList()) {
                     if (playerJson.getAsJsonObject().has("name") && playerJson.getAsJsonObject().has("id")) {
                         String name = playerJson.getAsJsonObject().get("name").getAsString();
                         String uuid = playerJson.getAsJsonObject().get("id").getAsString();
 
-                        // Skip building player if uuid is null, either anonymous player or a bot
+                        // Skip building player if uuid is null, has spaces in the name, or has no name
                         if (uuid.equals("00000000-0000-0000-0000-000000000000") || name.contains(" ") || name.isBlank() && Main.ignore_bots) continue;
 
                         // Offline mode servers use v3 UUID's for players, while regular servers use v4, this is a really easy way to check if a server is offline mode
@@ -161,6 +155,7 @@ public class ScanManager {
                 .setEnforceSecure(enforcesSecureChat)
                 .setCracked(cracked)
                 .setMaxPlayers(maxPlayers)
+                .setOnlinePlayers(onlinePlayers)
                 .setPlayers(playerList)
                 .setMods(modsList)
                 .build();

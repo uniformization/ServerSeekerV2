@@ -100,9 +100,9 @@ public class Database{
             Boolean whitelist = server.getWhitelist();
             Boolean cracked = server.getCracked();
             Integer maxPlayers = server.getMaxPlayers();
+            Integer onlinePlayers = server.getOnlinePlayers();
             List<Player> players = server.getPlayers();
             List<Mod> mods = server.getMods();
-            int onlinePlayers = players.size();
 
             // Attempt to insert new server, if address and port already exist, update relevant information
             PreparedStatement insertServer = conn.prepareStatement("INSERT INTO Servers " +
@@ -181,6 +181,7 @@ public class Database{
                 updatePlayers.setLong(6, player.getTimestamp());
                 updatePlayers.executeUpdate();
             }
+
             // Close connection out of loop
             updatePlayers.close();
 
@@ -198,11 +199,10 @@ public class Database{
                     updateMods.setString(4, mod.getModMarker());
                     updateMods.executeUpdate();
                 }
-            // Close connection
+
             updatePlayers.close();
-            Main.logger.info("Added {} to the database!", server.getAddress());
         } catch (SQLException e) {
-            Main.logger.error("Database error!", e);
+            Main.logger.error("There was an error during a database transaction!", e);
         }
     }
 }

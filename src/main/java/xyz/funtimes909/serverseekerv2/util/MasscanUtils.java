@@ -18,7 +18,7 @@ public class MasscanUtils {
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             processBuilder = new ProcessBuilder("cmd.exe", "masscan -c " + Main.masscan_conf);
         } else {
-            processBuilder = new ProcessBuilder("/bin/sh", "-c", "masscan -c " + Main.masscan_conf);
+            processBuilder = new ProcessBuilder("/bin/sh", "-c", "sudo masscan -c " + Main.masscan_conf);
         }
         processBuilder.inheritIO();
 
@@ -39,8 +39,7 @@ public class MasscanUtils {
             Type serverList = new TypeToken<List<Masscan>>() {}.getType();
             return gson.fromJson(reader, serverList);
         } catch (IOException e) {
-            Main.logger.error("Masscan output not found or malformed JSON!", e);
-            return null;
+            throw new RuntimeException("Masscan output not found or no servers were found, Aborting scan!");
         }
     }
 }

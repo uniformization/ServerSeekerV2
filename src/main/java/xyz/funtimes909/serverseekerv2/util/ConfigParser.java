@@ -2,7 +2,6 @@ package xyz.funtimes909.serverseekerv2.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Config;
 
 import java.io.BufferedReader;

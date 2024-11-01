@@ -12,6 +12,7 @@ public class Server {
     private final String asn;
     private final String address;
     private final Integer maxPlayers;
+    private final Integer onlinePlayers;
     private final short port;
     private final Integer protocol;
     private final Integer fmlNetworkVersion;
@@ -56,6 +57,10 @@ public class Server {
 
     public Integer getMaxPlayers() {
         return maxPlayers;
+    }
+
+    public Integer getOnlinePlayers() {
+        return onlinePlayers;
     }
 
     public short getPort() {
@@ -104,6 +109,7 @@ public class Server {
         this.asn = builder.asn;
         this.address = builder.address;
         this.maxPlayers = builder.maxPlayers;
+        this.onlinePlayers = builder.onlinePlayers;
         this.port = builder.port;
         this.protocol = builder.protocol;
         this.fmlNetworkVersion = builder.fmlNetworkVersion;
@@ -125,6 +131,7 @@ public class Server {
         private String asn;
         private String address;
         private Integer maxPlayers;
+        private Integer onlinePlayers;
         private short port;
         private Integer protocol;
         private Integer fmlNetworkVersion;
@@ -178,6 +185,11 @@ public class Server {
 
         public Builder setMaxPlayers(Integer maxPlayers) {
             this.maxPlayers = maxPlayers;
+            return this;
+        }
+
+        public Builder setOnlinePlayers(Integer onlinePlayers) {
+            this.onlinePlayers = onlinePlayers;
             return this;
         }
 

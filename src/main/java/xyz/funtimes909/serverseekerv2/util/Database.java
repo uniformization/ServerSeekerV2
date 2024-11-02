@@ -37,8 +37,10 @@ public class Database{
                     "Port NUMERIC," +
                     "FirstSeen INT," +
                     "LastSeen INT," +
-                    "Asn TEXT," +
                     "Country TEXT," +
+                    "Asn TEXT," +
+                    "ReverseDNS TEXT," +
+                    "Organization TEXT," +
                     "Version TEXT," +
                     "Protocol INT," +
                     "FmlNetworkVersion INT," +
@@ -85,8 +87,10 @@ public class Database{
             String address = server.getAddress();
             short port = server.getPort();
             long timestamp = server.getTimestamp();
-            String asn = server.getAsn();
             String country = server.getCountry();
+            String asn = server.getAsn();
+            String reverseDns = server.getReverseDns();
+            String organization = server.getOrganization();
             String version = server.getVersion();
             Integer protocol = server.getProtocol();
             Integer fmlNetworkVersion = server.getFmlNetworkVersion();
@@ -108,8 +112,10 @@ public class Database{
                     "Port," +
                     "FirstSeen," +
                     "LastSeen," +
-                    "Asn," +
                     "Country," +
+                    "Asn," +
+                    "ReverseDNS," +
+                    "Organization," +
                     "Version," +
                     "Protocol," +
                     "FmlNetworkVersion," +
@@ -122,11 +128,13 @@ public class Database{
                     "Cracked," +
                     "MaxPlayers," +
                     "OnlinePlayers)" +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     "ON CONFLICT (Address, Port) DO UPDATE SET " +
                     "LastSeen = EXCLUDED.LastSeen," +
-                    "Asn = EXCLUDED.Asn," +
                     "Country = EXCLUDED.Country," +
+                    "Asn = EXCLUDED.Asn," +
+                    "ReverseDNS = EXCLUDED.ReverseDNS," +
+                    "Organization = EXCLUDED.Organization," +
                     "Version = EXCLUDED.Version," +
                     "Protocol = EXCLUDED.Protocol," +
                     "FmlNetworkVersion = EXCLUDED.FmlNetworkVersion," +
@@ -145,20 +153,22 @@ public class Database{
             insertServer.setInt(2, port);
             insertServer.setLong(3, timestamp);
             insertServer.setLong(4, timestamp);
-            insertServer.setString(5, asn);
-            insertServer.setString(6, country);
-            insertServer.setString(7, version);
-            insertServer.setObject(8, protocol, Types.INTEGER);
-            insertServer.setObject(9, fmlNetworkVersion, Types.INTEGER);
-            insertServer.setString(10, motd);
-            insertServer.setString(11, icon);
-            insertServer.setInt(12, timesSeen);
-            insertServer.setObject(13, preventsReports, Types.BOOLEAN);
-            insertServer.setObject(14, enforceSecure, Types.BOOLEAN);
-            insertServer.setObject(15, whitelist, Types.BOOLEAN);
-            insertServer.setObject(16, cracked, Types.BOOLEAN);
-            insertServer.setObject(17, maxPlayers, Types.INTEGER);
-            insertServer.setObject(18, onlinePlayers, Types.INTEGER);
+            insertServer.setString(5, country);
+            insertServer.setString(6, asn);
+            insertServer.setString(7, reverseDns);
+            insertServer.setString(8, organization);
+            insertServer.setString(9, version);
+            insertServer.setObject(10, protocol, Types.INTEGER);
+            insertServer.setObject(11, fmlNetworkVersion, Types.INTEGER);
+            insertServer.setString(12, motd);
+            insertServer.setString(13, icon);
+            insertServer.setInt(14, timesSeen);
+            insertServer.setObject(15, preventsReports, Types.BOOLEAN);
+            insertServer.setObject(16, enforceSecure, Types.BOOLEAN);
+            insertServer.setObject(17, whitelist, Types.BOOLEAN);
+            insertServer.setObject(18, cracked, Types.BOOLEAN);
+            insertServer.setObject(19, maxPlayers, Types.INTEGER);
+            insertServer.setObject(20, onlinePlayers, Types.INTEGER);
             insertServer.executeUpdate();
             insertServer.close();
 

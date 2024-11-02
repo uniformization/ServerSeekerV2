@@ -10,6 +10,8 @@ public class Server {
     private final String icon;
     private final String country;
     private final String asn;
+    private final String reverseDns;
+    private final String organization;
     private final String address;
     private final Integer maxPlayers;
     private final Integer onlinePlayers;
@@ -49,6 +51,14 @@ public class Server {
 
     public String getAsn() {
         return asn;
+    }
+
+    public String getReverseDns() {
+        return reverseDns;
+    }
+
+    public String getOrganization() {
+        return organization;
     }
 
     public String getAddress() {
@@ -107,6 +117,8 @@ public class Server {
         this.icon = builder.icon;
         this.country = builder.country;
         this.asn = builder.asn;
+        this.reverseDns = builder.reverseDns;
+        this.organization = builder.organization;
         this.address = builder.address;
         this.maxPlayers = builder.maxPlayers;
         this.onlinePlayers = builder.onlinePlayers;
@@ -129,6 +141,8 @@ public class Server {
         private String icon;
         private String country;
         private String asn;
+        private String reverseDns;
+        private String organization;
         private String address;
         private Integer maxPlayers;
         private Integer onlinePlayers;
@@ -175,6 +189,16 @@ public class Server {
 
         public Builder setAsn(String asn) {
             this.asn = asn;
+            return this;
+        }
+
+        public Builder setReverseDns(String reverseDns) {
+            this.reverseDns = reverseDns;
+            return this;
+        }
+
+        public Builder setOrganization(String organization) {
+            this.organization = organization;
             return this;
         }
 

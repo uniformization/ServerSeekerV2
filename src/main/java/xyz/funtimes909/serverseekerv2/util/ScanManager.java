@@ -9,7 +9,7 @@ import xyz.funtimes909.serverseekerv2.builders.Mod;
 import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
 import xyz.funtimes909.serverseekerv2.network.Connect;
-import xyz.funtimes909.serverseekerv2.network.IpInfo;
+import xyz.funtimes909.serverseekerv2.network.IpLookup;
 import xyz.funtimes909.serverseekerv2.network.Pinger;
 
 import java.net.Socket;
@@ -52,6 +52,8 @@ public class ScanManager {
         String icon = null;
         String asn = null;
         String country = null;
+        String reverseDns = null;
+        String organization = null;
         Boolean preventsChatReports = null;
         Boolean enforcesSecureChat = null;
         Boolean cracked = null;
@@ -67,11 +69,11 @@ public class ScanManager {
         short port = masscan.getPorts().getFirst().getPort();
         long timestamp = System.currentTimeMillis() / 1000;
 
-        // Prevent a whole load of issues if the token doesn't exist
-        if (!Main.token.isBlank()) {
-            asn = IpInfo.lookupAsn(address);
-            country = IpInfo.lookupCountry(address);
-        }
+        JsonObject ipLookupResponse = IpLookup.run(address);
+        if (ipLookupResponse.has("reverse")) reverseDns = ipLookupResponse.get("reverse").getAsString();
+        if (ipLookupResponse.has("country")) country = ipLookupResponse.get("country").getAsString();
+        if (ipLookupResponse.has("org")) organization = ipLookupResponse.get("org").getAsString();
+        if (ipLookupResponse.has("as")) asn = ipLookupResponse.get("as").getAsString();
 
         // Minecraft server information
         if (parsedJson.has("version")) {
@@ -145,6 +147,8 @@ public class ScanManager {
                 .setTimestamp(timestamp)
                 .setAsn(asn)
                 .setCountry(country)
+                .setReverseDns(reverseDns)
+                .setOrganization(organization)
                 .setVersion(version)
                 .setProtocol(protocol)
                 .setFmlNetworkVersion(fmlNetworkVersion)

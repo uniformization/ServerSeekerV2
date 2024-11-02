@@ -10,6 +10,7 @@ import xyz.funtimes909.serverseekerv2.util.ScanManager;
 public class Main {
     public static int connection_timeout;
     public static boolean ignore_bots;
+    public static boolean ip_lookups;
     public static String token;
     public static String postgres_url;
     public static String postgres_user;
@@ -33,6 +34,7 @@ public class Main {
         Config config = ConfigParser.parse(configFile);
         connection_timeout = config.getConnectionTimeout();
         ignore_bots = config.getIgnoreBots();
+        ip_lookups = config.getIpLookups();
         token = config.getToken();
         postgres_url = config.getPostgresUrl();
         postgres_user = config.getPostgresUser();
@@ -41,12 +43,8 @@ public class Main {
         masscan_output = config.getMasscanOutput();
 
         // Warn user about configs should some of them not exist
-        if (token.isBlank())
-            logger.warn("Warning! No IpLookup token specified! Information on ip addresses will be limited!");
-        if (postgres_user.isBlank())
-            logger.warn("Warning! No postgres username specified. Attempting to use default username \"postgres\"");
-        if (postgres_password.isBlank())
-            logger.warn("Warning! No postgres password specified. You should setup a password for your database");
+        if (postgres_user.isBlank()) logger.warn("Warning! No postgres username specified. Attempting to use default username \"postgres\"");
+        if (postgres_password.isBlank()) logger.warn("Warning! No postgres password specified. You should setup a password for your database");
         if (postgres_url.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
         if (masscan_conf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");
 

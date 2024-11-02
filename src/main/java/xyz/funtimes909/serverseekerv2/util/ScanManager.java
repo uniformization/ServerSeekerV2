@@ -69,11 +69,25 @@ public class ScanManager {
         short port = masscan.getPorts().getFirst().getPort();
         long timestamp = System.currentTimeMillis() / 1000;
 
-        JsonObject ipLookupResponse = IpLookup.run(address);
-        if (ipLookupResponse.has("reverse")) reverseDns = ipLookupResponse.get("reverse").getAsString();
-        if (ipLookupResponse.has("country")) country = ipLookupResponse.get("country").getAsString();
-        if (ipLookupResponse.has("org")) organization = ipLookupResponse.get("org").getAsString();
-        if (ipLookupResponse.has("as")) asn = ipLookupResponse.get("as").getAsString();
+        // Country and ASN information
+        if (Main.ip_lookups) {
+            String primaryResponse = IpLookup.run(address);
+
+            if (primaryResponse != null) {
+                JsonObject parsedPrimaryResponse = JsonParser.parseString(primaryResponse).getAsJsonObject();
+                if (parsedPrimaryResponse.has("reverse")) reverseDns = parsedPrimaryResponse.get("reverse").getAsString();
+                if (parsedPrimaryResponse.has("countryCode")) country = parsedPrimaryResponse.get("countryCode").getAsString();
+                if (parsedPrimaryResponse.has("org")) organization = parsedPrimaryResponse.get("org").getAsString();
+                if (parsedPrimaryResponse.has("as")) asn = parsedPrimaryResponse.get("as").getAsString();
+            } else if (!Main.token.isBlank()) {
+                String secondaryResponse = IpLookup.ipinfo(address);
+                if (secondaryResponse != null) {
+                    JsonObject parsedSecondaryResponse = JsonParser.parseString(secondaryResponse).getAsJsonObject();
+                    if (parsedSecondaryResponse.has("hostname")) reverseDns = parsedSecondaryResponse.get("hostname").getAsString();
+                    if (parsedSecondaryResponse.has("country")) country = parsedSecondaryResponse.get("country").getAsString();
+                }
+            }
+        }
 
         // Minecraft server information
         if (parsedJson.has("version")) {

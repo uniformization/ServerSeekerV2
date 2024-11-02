@@ -6,6 +6,7 @@
   "postgres_user": "postgres",
   "postgres_password": ":3",
   "ignore_bots": true,
+  "ip_lookups": true,
   "masscan_sudo": true,
   "masscan_conf": "serverseekerv2.conf",
   "masscan_output": "minecraft-servers.json"

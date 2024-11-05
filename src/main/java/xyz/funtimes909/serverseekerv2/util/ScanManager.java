@@ -30,7 +30,7 @@ public class ScanManager {
 
         for (Masscan server : serverList) {
             Runnable task = () -> {
-                Socket connection = Connect.connect(server.getIp(), server.getPorts().getFirst().getPort());
+                Socket connection = Connect.connect(server.ip(), server.ports().getFirst().port());
                 if (connection == null) return;
                 String json = Pinger.ping(connection);
                 if (json != null) buildServer(json, server);
@@ -65,8 +65,8 @@ public class ScanManager {
         List<Mod> modsList = new ArrayList<>();
 
         // Server information
-        String address = masscan.getIp();
-        short port = masscan.getPorts().getFirst().getPort();
+        String address = masscan.ip();
+        short port = masscan.ports().getFirst().port();
         long timestamp = System.currentTimeMillis() / 1000;
 
         // Country and ASN information

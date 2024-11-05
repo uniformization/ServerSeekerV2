@@ -214,8 +214,8 @@ public class Database{
                 updateMods.setShort(2, port);
 
                 for (Mod mod : mods) {
-                    updateMods.setString(3, mod.getModId());
-                    updateMods.setString(4, mod.getModMarker());
+                    updateMods.setString(3, mod.modId());
+                    updateMods.setString(4, mod.modMarker());
                     updateMods.addBatch();
                 }
 

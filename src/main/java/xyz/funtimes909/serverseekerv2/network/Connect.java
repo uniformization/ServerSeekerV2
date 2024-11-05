@@ -9,6 +9,7 @@ import java.net.Socket;
 public class Connect {
     public static Socket connect(String address, int port) {
         try {
+            // Don't use try-with-resources, socket needs to be used later
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(address, port), Main.connection_timeout);
             return socket;

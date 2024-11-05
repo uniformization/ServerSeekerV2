@@ -11,9 +11,6 @@ apply plugin: 'com.gradleup.shadow'
 apply plugin: 'java'
 apply plugin: 'application'
 
-
-
-
 group = 'xyz.funtimes909'
 version = '1.0-SNAPSHOT'
 

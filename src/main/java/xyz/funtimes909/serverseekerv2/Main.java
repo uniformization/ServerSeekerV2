@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import xyz.funtimes909.serverseekerv2.builders.Config;
 import xyz.funtimes909.serverseekerv2.util.ConfigParser;
 import xyz.funtimes909.serverseekerv2.util.Database;
+import xyz.funtimes909.serverseekerv2.util.MasscanUtils;
 import xyz.funtimes909.serverseekerv2.util.ScanManager;
 
 public class Main {
@@ -54,7 +55,7 @@ public class Main {
 
         // TODO Make this not bad
         while (true) {
-//            MasscanUtils.run();
+            MasscanUtils.run();
             ScanManager.scan();
             Thread.sleep(5000);
         }

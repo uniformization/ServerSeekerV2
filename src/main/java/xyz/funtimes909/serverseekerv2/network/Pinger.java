@@ -20,8 +20,7 @@ public class Pinger {
     };
 
     public static String ping(Socket connection) {
-        try {
-            OutputStream out = connection.getOutputStream();
+        try (OutputStream out = connection.getOutputStream()) {
             out.write(REQUEST);
             InputStream in = connection.getInputStream();
             // Skip the first varint which indicates the total size of the packet.
@@ -38,7 +37,6 @@ public class Pinger {
             // Close all resources
             connection.close();
             in.close();
-            out.close();
             return new String(status);
         } catch (Exception e) {
             return null;

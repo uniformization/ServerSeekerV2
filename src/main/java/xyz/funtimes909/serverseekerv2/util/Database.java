@@ -75,6 +75,13 @@ public class Database{
                     "PRIMARY KEY (Address, Port, ModId)," +
                     "FOREIGN KEY (Address, Port) REFERENCES Servers(Address, Port))");
 
+            // Indexes
+            tables.addBatch("CREATE INDEX IF NOT EXISTS ServersIndex ON Servers (Motd, maxplayers, version, onlineplayers, country)");
+
+            tables.addBatch("CREATE INDEX IF NOT EXISTS PlayersIndex ON PlayerHistory (playername)");
+
+            tables.addBatch("CREATE INDEX IF NOT EXISTS ModsIndex ON Mods (modid)");
+
             tables.executeBatch();
             tables.close();
         } catch (SQLException e) {
@@ -216,6 +223,8 @@ public class Database{
                 updateMods.executeBatch();
                 updateMods.close();
             }
+            System.gc();
+            Main.logger.info("Added {} to the database!", server.getAddress());
         } catch (SQLException e) {
             Main.logger.error("There was an error during a database transaction!", e);
         }

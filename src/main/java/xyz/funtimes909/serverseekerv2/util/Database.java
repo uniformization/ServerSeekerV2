@@ -10,7 +10,6 @@ import java.sql.*;
 import java.util.List;
 
 public class Database{
-    // Connection pooling
     private static final BasicDataSource dataSource = new BasicDataSource();
 
     public static void initPool() {
@@ -76,7 +75,7 @@ public class Database{
                     "FOREIGN KEY (Address, Port) REFERENCES Servers(Address, Port))");
 
             // Indexes
-            tables.addBatch("CREATE INDEX IF NOT EXISTS ServersIndex ON Servers (Motd, maxplayers, version, onlineplayers, country)");
+            tables.addBatch("CREATE INDEX IF NOT EXISTS ServersIndex ON Servers (Motd, maxplayers, version, onlineplayers, country, icon, cracked, preventsreports)");
 
             tables.addBatch("CREATE INDEX IF NOT EXISTS PlayersIndex ON PlayerHistory (playername)");
 

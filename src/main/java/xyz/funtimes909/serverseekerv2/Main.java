@@ -56,11 +56,9 @@ public class Main {
         // TODO Make this not bad
         while (true) {
             MasscanUtils.run();
-            logger.info("Masscan finished running! Pausing for 5 seconds");
+            logger.debug("Masscan finished running! Pausing for 5 seconds");
             Thread.sleep(5000);
             ScanManager.scan();
-            logger.info("Finished pinging! Pausing for 5 seconds");
-            Thread.sleep(5000);
         }
     }
 }

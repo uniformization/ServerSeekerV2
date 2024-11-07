@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private static final Semaphore semaphore = new Semaphore(100);
 
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscan_output);
@@ -35,11 +37,13 @@ public class ScanManager {
                 if (connection == null) return;
                 String json = Pinger.ping(connection);
                 if (json != null) buildServer(json, server);
+                semaphore.release();
             };
             tasks.add(task);
         }
 
         for (Runnable task : tasks) {
+            semaphore.acquireUninterruptibly();
             executor.execute(task);
         }
     }
@@ -182,8 +186,7 @@ public class ScanManager {
                     .setMods(modsList)
                     .build();
 
-            Main.logger.info("built server {} ", server.getAddress());
             Database.updateServer(server);
-        } catch (JsonSyntaxException ignored) {}
+        } catch (JsonSyntaxException | IllegalStateException ignored) {}
     }
 }

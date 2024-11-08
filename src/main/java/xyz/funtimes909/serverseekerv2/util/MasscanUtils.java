@@ -16,9 +16,9 @@ public class MasscanUtils {
         // Create process and modify attributes
         ProcessBuilder processBuilder;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            processBuilder = new ProcessBuilder("cmd.exe", "masscan -c " + Main.masscan_conf);
+            processBuilder = new ProcessBuilder("cmd.exe", "masscan -c " + Main.masscanConf);
         } else {
-            processBuilder = new ProcessBuilder("/bin/sh", "-c", "sudo masscan -c " + Main.masscan_conf);
+            processBuilder = new ProcessBuilder("/bin/sh", "-c", "sudo masscan -c " + Main.masscanConf);
         }
         processBuilder.inheritIO();
 

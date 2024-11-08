@@ -9,15 +9,15 @@ import xyz.funtimes909.serverseekerv2.util.MasscanUtils;
 import xyz.funtimes909.serverseekerv2.util.ScanManager;
 
 public class Main {
-    public static int connection_timeout;
-    public static boolean ignore_bots;
-    public static boolean ip_lookups;
+    public static int connectionTimeout;
+    public static boolean ignoreBots;
+    public static boolean ipLookups;
     public static String token;
-    public static String postgres_url;
-    public static String postgres_user;
-    public static String postgres_password;
-    public static String masscan_conf;
-    public static String masscan_output;
+    public static String postgresUrl;
+    public static String postgresUser;
+    public static String postgresPassword;
+    public static String masscanConf;
+    public static String masscanOutput;
     public static final Logger logger = LoggerFactory.getLogger("ServerSeekerV2");
 
     public static void main(String[] args) throws InterruptedException {
@@ -33,21 +33,21 @@ public class Main {
 
         // Parse config file and set attributes
         Config config = ConfigParser.parse(configFile);
-        connection_timeout = config.getConnectionTimeout();
-        ignore_bots = config.getIgnoreBots();
-        ip_lookups = config.getIpLookups();
+        connectionTimeout = config.getConnectionTimeout();
+        ignoreBots = config.getIgnoreBots();
+        ipLookups = config.getIpLookups();
         token = config.getToken();
-        postgres_url = config.getPostgresUrl();
-        postgres_user = config.getPostgresUser();
-        postgres_password = config.getPostgresPassword();
-        masscan_conf = config.getMasscanConfigLocation();
-        masscan_output = config.getMasscanOutput();
+        postgresUrl = config.getPostgresUrl();
+        postgresUser = config.getPostgresUser();
+        postgresPassword = config.getPostgresPassword();
+        masscanConf = config.getMasscanConfigLocation();
+        masscanOutput = config.getMasscanOutput();
 
         // Warn user about configs should some of them not exist
-        if (postgres_user.isBlank()) logger.warn("Warning! No postgres username specified. Attempting to use default username \"postgres\"");
-        if (postgres_password.isBlank()) logger.warn("Warning! No postgres password specified. You should setup a password for your database");
-        if (postgres_url.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
-        if (masscan_conf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");
+        if (postgresUser.isBlank()) logger.warn("Warning! No postgres username specified. Attempting to use default username \"postgres\"");
+        if (postgresPassword.isBlank()) logger.warn("Warning! No postgres password specified. You should setup a password for your database");
+        if (postgresUrl.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
+        if (masscanConf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");
 
         // Init database connection pool and create tables if they don't exist
         Database.initPool();
@@ -56,9 +56,9 @@ public class Main {
         // TODO Make this not bad
         while (true) {
             MasscanUtils.run();
+            ScanManager.scan();
             logger.debug("Masscan finished running! Pausing for 5 seconds");
             Thread.sleep(5000);
-            ScanManager.scan();
         }
     }
 }

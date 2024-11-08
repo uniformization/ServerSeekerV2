@@ -11,7 +11,7 @@ public class Connect {
         try {
             // Don't use try-with-resources, socket needs to be used later
             Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(address, port), Main.connection_timeout);
+            socket.connect(new InetSocketAddress(address, port), Main.connectionTimeout);
             return socket;
         } catch (IOException e) {
             return null;

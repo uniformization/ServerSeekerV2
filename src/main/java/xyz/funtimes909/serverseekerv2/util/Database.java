@@ -13,9 +13,9 @@ public class Database{
     private static final BasicDataSource dataSource = new BasicDataSource();
 
     public static void initPool() {
-        dataSource.setUrl("jdbc:postgresql://" + Main.postgres_url);
-        dataSource.setPassword(Main.postgres_password);
-        dataSource.setUsername(Main.postgres_user);
+        dataSource.setUrl("jdbc:postgresql://" + Main.postgresUrl);
+        dataSource.setPassword(Main.postgresPassword);
+        dataSource.setUsername(Main.postgresUser);
     }
 
     public static Connection getConnection() {

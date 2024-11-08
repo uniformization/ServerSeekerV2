@@ -23,13 +23,11 @@ import java.util.concurrent.Semaphore;
 
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-    private static final Semaphore lock = new Semaphore(100);
+    private static final Semaphore lock = new Semaphore(1000);
 
     public static void scan() {
-        List<Masscan> serverList = MasscanUtils.parse(Main.masscan_output);
+        List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);
         if (serverList == null) return;
-
-        List<Runnable> tasks = new ArrayList<>();
 
         for (Masscan server : serverList) {
             Runnable task = () -> {
@@ -39,13 +37,13 @@ public class ScanManager {
                     return;
                 }
                 String json = Pinger.ping(connection);
-                if (json != null) buildServer(json, server);
+                if (json == null) {
+                    lock.release();
+                    return;
+                }
+                buildServer(json, server);
                 lock.release();
             };
-            tasks.add(task);
-        }
-
-        for (Runnable task : tasks) {
             lock.acquireUninterruptibly();
             executor.execute(task);
         }
@@ -79,7 +77,7 @@ public class ScanManager {
             long timestamp = System.currentTimeMillis() / 1000;
 
             // Country and ASN information
-            if (Main.ip_lookups) {
+            if (Main.ipLookups) {
                 String primaryResponse = IpLookup.run(address);
 
                 if (primaryResponse != null) {
@@ -153,7 +151,7 @@ public class ScanManager {
                             String uuid = playerJson.getAsJsonObject().get("id").getAsString();
 
                             // Skip building player if uuid is null, has spaces in the name, or has no name
-                            if (uuid.equals("00000000-0000-0000-0000-000000000000") || name.contains(" ") || name.isBlank() && Main.ignore_bots) continue;
+                            if (uuid.equals("00000000-0000-0000-0000-000000000000") || name.contains(" ") || name.isBlank() && Main.ignoreBots) continue;
 
                             // Offline mode servers use v3 UUID's for players, while regular servers use v4, this is a really easy way to check if a server is offline mode
                             if (UUID.fromString(uuid).version() == 3) cracked = true;

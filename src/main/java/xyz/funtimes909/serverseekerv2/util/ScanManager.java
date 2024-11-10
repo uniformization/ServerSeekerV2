@@ -42,7 +42,6 @@ public class ScanManager {
                     lock.release();
                 }
             };
-            System.out.println(lock.availablePermits() + " locks remaining, " + serverList.size() + " Servers remaining");
             lock.acquireUninterruptibly();
             executor.execute(task);
         }

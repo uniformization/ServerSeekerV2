@@ -23,7 +23,7 @@ import java.util.concurrent.Semaphore;
 
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-    private static final Semaphore lock = new Semaphore(1000);
+    private static final Semaphore lock = new Semaphore(300);
 
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);
@@ -31,19 +31,18 @@ public class ScanManager {
 
         for (Masscan server : serverList) {
             Runnable task = () -> {
-                Socket connection = Connect.connect(server.ip(), server.ports().getFirst().port());
-                if (connection == null) {
+                try {
+                    Socket connection = Connect.connect(server.ip(), server.ports().getFirst().port());
+                    if (connection == null) return;
+                    String json = Pinger.ping(connection);
+                    if (json == null) return;
+                    buildServer(json, server);
+                } catch (Exception ignored) {
+                } finally {
                     lock.release();
-                    return;
                 }
-                String json = Pinger.ping(connection);
-                if (json == null) {
-                    lock.release();
-                    return;
-                }
-                buildServer(json, server);
-                lock.release();
             };
+            System.out.println(lock.availablePermits() + " locks remaining, " + serverList.size() + " Servers remaining");
             lock.acquireUninterruptibly();
             executor.execute(task);
         }

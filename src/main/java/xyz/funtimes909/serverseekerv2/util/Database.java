@@ -222,8 +222,6 @@ public class Database{
                 updateMods.executeBatch();
                 updateMods.close();
             }
-            System.gc();
-            Main.logger.info("Added {} to the database!", server.getAddress());
         } catch (SQLException e) {
             Main.logger.error("There was an error during a database transaction!", e);
         }

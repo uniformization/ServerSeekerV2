@@ -23,12 +23,13 @@ import java.util.concurrent.Semaphore;
 
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-    private static final Semaphore lock = new Semaphore(300);
+    private static final Semaphore lock = new Semaphore(1000);
 
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);
         if (serverList == null) return;
 
+        final int[] count = {serverList.size()};
         for (Masscan server : serverList) {
             Runnable task = () -> {
                 try {
@@ -37,6 +38,8 @@ public class ScanManager {
                     String json = Pinger.ping(connection);
                     if (json == null) return;
                     buildServer(json, server);
+                    count[0] = count[0] - 1;
+                    Main.logger.debug("Added {} to the database! {} Remaining servers!", server.ip(), count[0]);
                 } catch (Exception ignored) {
                 } finally {
                     lock.release();

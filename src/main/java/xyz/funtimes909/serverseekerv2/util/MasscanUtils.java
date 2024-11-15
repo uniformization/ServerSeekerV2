@@ -1,17 +1,31 @@
 package xyz.funtimes909.serverseekerv2.util;
 
 import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import com.google.gson.*;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
+import xyz.funtimes909.serverseekerv2.builders.Port;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MasscanUtils {
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(Masscan.class, (JsonDeserializer<Masscan>) (jsonElement, type, ctx) -> {
+                JsonObject obj = jsonElement.getAsJsonObject();
+                String ip = obj.get("ip").getAsString();
+                JsonArray portArr = obj.get("ports").getAsJsonArray();
+                List<Port> ports = new ArrayList<>(portArr.size());
+                ports.add(ctx.deserialize(portArr.get(0), Port.class));
+                return new Masscan(ip, ports);
+            })
+            .registerTypeAdapter(Port.class, (JsonDeserializer<Port>) (jsonElement, type, ctx) -> new Port(jsonElement.getAsJsonObject().get("port").getAsShort()))
+            .create();
+
     public static void run() {
         // Create process and modify attributes
         ProcessBuilder processBuilder;
@@ -26,18 +40,17 @@ public class MasscanUtils {
             Main.logger.info("Starting a masscan instance, this could take a while. Press Control+C to stop the scan");
             Process process = processBuilder.start();
             process.waitFor();
+            Thread.sleep(2000);
         } catch (IOException | InterruptedException e) {
             Main.logger.error("Failed to run masscan!", e);
         }
     }
 
     public static List<Masscan> parse(String path) {
-        Gson gson = new Gson();
-
         // Parse masscan output to a list of Masscan objects
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             Type serverList = new TypeToken<List<Masscan>>() {}.getType();
-            return gson.fromJson(reader, serverList);
+            return GSON.fromJson(reader, serverList);
         } catch (IOException e) {
             throw new RuntimeException("Masscan output not found or no servers were found, Aborting scan!");
         }

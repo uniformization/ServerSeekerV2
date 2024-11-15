@@ -20,7 +20,7 @@ public class Main {
     public static String masscanOutput;
     public static final Logger logger = LoggerFactory.getLogger("ServerSeekerV2");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String configFile;
 
         // Set config file
@@ -56,8 +56,9 @@ public class Main {
         // TODO Make this not bad
         while (true) {
             MasscanUtils.run();
+            logger.debug("Masscan finished running, Paused for 5 seconds...");
+            Thread.sleep(5000);
             ScanManager.scan();
-            logger.debug("Masscan finished running!");
         }
     }
 }

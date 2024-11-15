@@ -40,7 +40,6 @@ public class MasscanUtils {
             Main.logger.info("Starting a masscan instance, this could take a while. Press Control+C to stop the scan");
             Process process = processBuilder.start();
             process.waitFor();
-            Thread.sleep(2000);
         } catch (IOException | InterruptedException e) {
             Main.logger.error("Failed to run masscan!", e);
         }

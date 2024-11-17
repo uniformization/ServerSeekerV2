@@ -57,8 +57,8 @@ public class Main {
         while (true) {
             MasscanUtils.run();
             logger.debug("Masscan finished running, Paused for 5 seconds...");
-            Thread.sleep(5000);
             ScanManager.scan();
+            Thread.sleep(5000);
         }
     }
 }

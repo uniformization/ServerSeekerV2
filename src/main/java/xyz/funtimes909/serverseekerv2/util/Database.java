@@ -7,6 +7,7 @@ import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Database{
@@ -76,9 +77,7 @@ public class Database{
 
             // Indexes
             tables.addBatch("CREATE INDEX IF NOT EXISTS ServersIndex ON Servers (Motd, maxplayers, version, onlineplayers, country, icon, cracked, preventsreports)");
-
             tables.addBatch("CREATE INDEX IF NOT EXISTS PlayersIndex ON PlayerHistory (playername)");
-
             tables.addBatch("CREATE INDEX IF NOT EXISTS ModsIndex ON Mods (modid)");
 
             tables.executeBatch();

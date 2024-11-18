@@ -10,12 +10,13 @@ import xyz.funtimes909.serverseekerv2.builders.Mod;
 import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
 import xyz.funtimes909.serverseekerv2.network.Connect;
-import xyz.funtimes909.serverseekerv2.network.IpLookup;
+import xyz.funtimes909.serverseekerv2.network.HttpUtils;
 import xyz.funtimes909.serverseekerv2.network.Pinger;
 
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,7 +80,7 @@ public class ScanManager {
 
             // Country and ASN information
             if (Main.ipLookups) {
-                String primaryResponse = IpLookup.run(address);
+                String primaryResponse = HttpUtils.run(address);
 
                 if (primaryResponse != null) {
                     JsonObject parsedPrimaryResponse = JsonParser.parseString(primaryResponse).getAsJsonObject();
@@ -88,11 +89,13 @@ public class ScanManager {
                     if (parsedPrimaryResponse.has("org")) organization = parsedPrimaryResponse.get("org").getAsString();
                     if (parsedPrimaryResponse.has("as")) asn = parsedPrimaryResponse.get("as").getAsString();
                 } else if (!Main.token.isBlank()) {
-                    String secondaryResponse = IpLookup.ipinfo(address);
+                    String secondaryResponse = HttpUtils.ipinfo(address);
                     if (secondaryResponse != null) {
                         JsonObject parsedSecondaryResponse = JsonParser.parseString(secondaryResponse).getAsJsonObject();
-                        if (parsedSecondaryResponse.has("hostname")) reverseDns = parsedSecondaryResponse.get("hostname").getAsString();
-                        if (parsedSecondaryResponse.has("country")) country = parsedSecondaryResponse.get("country").getAsString();
+                        if (parsedSecondaryResponse.has("hostname"))
+                            reverseDns = parsedSecondaryResponse.get("hostname").getAsString();
+                        if (parsedSecondaryResponse.has("country"))
+                            country = parsedSecondaryResponse.get("country").getAsString();
                     }
                 }
             }
@@ -156,6 +159,12 @@ public class ScanManager {
 
                             // Offline mode servers use v3 UUID's for players, while regular servers use v4, this is a really easy way to check if a server is offline mode
                             if (UUID.fromString(uuid).version() == 3) cracked = true;
+
+                            for (Map.Entry<String, String> trackedPlayer : PlayerTracking.playerTracker.entrySet()) {
+                                if (trackedPlayer.getKey().equalsIgnoreCase(name)) {
+                                    HttpUtils.sendWebhook(trackedPlayer.getValue(), trackedPlayer.getKey(), address);
+                                }
+                            }
 
                             Player player = new Player(name, uuid, timestamp);
                             playerList.add(player);

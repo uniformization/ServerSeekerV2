@@ -16,6 +16,8 @@ public class Config {
     private boolean ignoreBots;
     @SerializedName("ip_lookups")
     private boolean ipLookups;
+    @SerializedName("player_tracking")
+    private boolean playerTracking;
     @SerializedName("masscan_conf")
     private String masscanConfigLocation;
     @SerializedName("masscan_output")
@@ -48,6 +50,10 @@ public class Config {
 
     public boolean getIpLookups() {
         return ipLookups;
+    }
+
+    public boolean getPlayerTracking() {
+        return playerTracking;
     }
 
     public String getMasscanConfigLocation() {

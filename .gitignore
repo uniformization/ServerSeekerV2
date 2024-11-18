@@ -6,6 +6,7 @@ build/
 
 ### IntelliJ IDEA ###
 .idea/
+tracks.json
 
 ### Eclipse ###
 .apt_generated

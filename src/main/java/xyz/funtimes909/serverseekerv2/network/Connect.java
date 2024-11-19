@@ -5,7 +5,6 @@ import xyz.funtimes909.serverseekerv2.Main;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.charset.MalformedInputException;
 
 public class Connect {
     public static Socket connect(String address, int port) {

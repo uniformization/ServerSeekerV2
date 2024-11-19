@@ -49,6 +49,20 @@ public class MasscanUtils {
         }
     }
 
+    public static boolean checkInstalled() {
+        String os = System.getProperty("os.name").toLowerCase();
+        String checkCommand = (os.contains("win")) ? "where" : "which";
+
+        try {
+            Process process = new ProcessBuilder(checkCommand, "masscan").start();
+            int exitCode = process.waitFor();
+            return exitCode == 0;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static List<Masscan> parse(String path) {
         // Parse masscan output to a list of Masscan objects
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {

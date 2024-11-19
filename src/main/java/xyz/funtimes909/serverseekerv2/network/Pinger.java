@@ -1,6 +1,5 @@
 package xyz.funtimes909.serverseekerv2.network;
 
-import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.util.VarInt;
 
 import java.io.InputStream;

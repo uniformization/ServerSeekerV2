@@ -3,7 +3,6 @@ package xyz.funtimes909.serverseekerv2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.funtimes909.serverseekerv2.builders.Config;
-import xyz.funtimes909.serverseekerv2.network.HttpUtils;
 import xyz.funtimes909.serverseekerv2.util.*;
 
 import java.io.File;
@@ -50,6 +49,7 @@ public class Main {
         if (postgresPassword.isBlank()) logger.warn("Warning! No postgres password specified. You should setup a password for your database");
         if (postgresUrl.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
         if (masscanConf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");
+        if (!MasscanUtils.checkInstalled()) throw new RuntimeException("Error! masscan not found! Try installing masscan and adding it to your $PATH");
 
         // Init database connection pool and create tables if they don't exist
         Database.initPool();

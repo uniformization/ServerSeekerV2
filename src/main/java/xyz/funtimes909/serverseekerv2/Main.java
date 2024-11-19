@@ -50,7 +50,6 @@ public class Main {
         if (postgresPassword.isBlank()) logger.warn("Warning! No postgres password specified. You should setup a password for your database");
         if (postgresUrl.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
         if (masscanConf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");
-        if (playerTracking) PlayerTracking.parseList(new File("tracks.json"));
 
         // Init database connection pool and create tables if they don't exist
         Database.initPool();
@@ -60,6 +59,10 @@ public class Main {
         while (true) {
             MasscanUtils.run();
             logger.debug("Masscan finished running, Paused for 5 seconds...");
+            if (playerTracking) {
+                PlayerTracking.parseList(new File("tracks.json"));
+                logger.debug("Loading {} players from tracks.json", PlayerTracking.playerTracker.size());
+            }
             ScanManager.scan();
             Thread.sleep(5000);
         }

@@ -39,7 +39,7 @@ public class ScanManager {
                     String json = Pinger.ping(connection);
                     if (json == null) return;
                     buildServer(json, server);
-                    Main.logger.debug("Added {} to the database! {} Remaining servers!", server.ip(), count[0]);
+                    if (!MasscanUtils.masscanRunning) Main.logger.debug("Added {} to the database! {} Remaining servers!", server.ip(), count[0]);
                 } catch (Exception ignored) {
                 } finally {
                     count[0] = count[0] - 1;

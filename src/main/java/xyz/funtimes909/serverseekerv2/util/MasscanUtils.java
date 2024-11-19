@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MasscanUtils {
+    public static boolean masscanRunning;
+
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Masscan.class, (JsonDeserializer<Masscan>) (jsonElement, type, ctx) -> {
                 JsonObject obj = jsonElement.getAsJsonObject();
@@ -38,8 +40,10 @@ public class MasscanUtils {
 
         try {
             Main.logger.info("Starting a masscan instance, this could take a while. Press Control+C to stop the scan");
+            masscanRunning = true;
             Process process = processBuilder.start();
             process.waitFor();
+            masscanRunning = false;
         } catch (IOException | InterruptedException e) {
             Main.logger.error("Failed to run masscan!", e);
         }

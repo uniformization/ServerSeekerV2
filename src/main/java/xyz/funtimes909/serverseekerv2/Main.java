@@ -63,8 +63,8 @@ public class Main {
                 PlayerTracking.parseList(new File("tracks.json"));
                 logger.debug("Loading {} players from tracks.json", PlayerTracking.playerTracker.size());
             }
-            ScanManager.scan();
             Thread.sleep(5000);
+            ScanManager.scan();
         }
     }
 }

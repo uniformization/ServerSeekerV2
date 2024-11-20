@@ -163,6 +163,7 @@ public class ScanManager {
                             for (Map.Entry<String, String> trackedPlayer : PlayerTracking.playerTracker.entrySet()) {
                                 if (trackedPlayer.getKey().equalsIgnoreCase(name)) {
                                     HttpUtils.sendWebhook(trackedPlayer.getValue(), trackedPlayer.getKey(), address);
+                                    Main.logger.info("{} found in tracks.json, sending POST to webhook", trackedPlayer.getKey());
                                 }
                             }
 

@@ -3,6 +3,7 @@ package xyz.funtimes909.serverseekerv2.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import xyz.funtimes909.serverseekerv2.Main;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,8 +15,8 @@ import java.util.Map;
 public class PlayerTracking {
     public static Map<String, String> playerTracker = new HashMap<>();
 
-    public static void parseList(File file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+    public static void parseList(String file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(file)))) {
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -27,7 +28,7 @@ public class PlayerTracking {
                 playerTracker.put(object.getAsJsonObject().get("player").getAsString(), object.getAsJsonObject().get("webhook").getAsString());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.logger.error("Error parsing tracks.json!", e);
         }
     }
 }

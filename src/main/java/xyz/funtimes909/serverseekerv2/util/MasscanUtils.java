@@ -39,13 +39,13 @@ public class MasscanUtils {
         processBuilder.inheritIO();
 
         try {
-            Main.logger.info("Starting a masscan instance, this could take a while. Press Control+C to stop the scan");
+            Main.logger.info("Starting masscan. Press Control+C to stop the scan");
             masscanRunning = true;
             Process process = processBuilder.start();
             process.waitFor();
             masscanRunning = false;
         } catch (IOException | InterruptedException e) {
-            Main.logger.error("Failed to run masscan!", e);
+            throw new RuntimeException(e);
         }
     }
 

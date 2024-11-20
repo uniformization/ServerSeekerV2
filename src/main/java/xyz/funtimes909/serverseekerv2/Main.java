@@ -58,13 +58,13 @@ public class Main {
         // TODO Make this not bad
         while (true) {
             MasscanUtils.run();
-            logger.debug("Masscan finished running, Paused for 5 seconds...");
             if (playerTracking) {
-                PlayerTracking.parseList(new File("tracks.json"));
+                PlayerTracking.parseList("tracks.json");
                 logger.debug("Loading {} players from tracks.json", PlayerTracking.playerTracker.size());
             }
-            Thread.sleep(5000);
             ScanManager.scan();
+            logger.debug("Scan finished. Paused for 5 seconds...");
+            Thread.sleep(5000);
         }
     }
 }

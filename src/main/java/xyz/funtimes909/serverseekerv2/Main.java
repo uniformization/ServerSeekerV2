@@ -52,8 +52,7 @@ public class Main {
         if (!MasscanUtils.checkInstalled()) throw new RuntimeException("Error! masscan not found! Try installing masscan and adding it to your $PATH");
 
         // Init database connection pool and create tables if they don't exist
-        Database.initPool();
-        Database.createIfNotExist();
+        Database.init();
 
         // TODO Make this not bad
         while (true) {

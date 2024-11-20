@@ -190,10 +190,10 @@ public class Database{
                 updatePlayers.setShort(2, port);
 
                 for (Player player : players) {
-                    updatePlayers.setString(3, player.getUuid());
-                    updatePlayers.setString(4, player.getName());
-                    updatePlayers.setLong(5, player.getTimestamp());
-                    updatePlayers.setLong(6, player.getTimestamp());
+                    updatePlayers.setString(3, player.uuid());
+                    updatePlayers.setString(4, player.name());
+                    updatePlayers.setLong(5, player.timestamp());
+                    updatePlayers.setLong(6, player.timestamp());
                     updatePlayers.addBatch();
                 }
 

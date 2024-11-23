@@ -1,22 +1,57 @@
 package xyz.funtimes909.serverseekerv2.network;
 
+import com.google.common.primitives.Bytes;
 import xyz.funtimes909.serverseekerv2.util.VarInt;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Pinger {
-    public static final byte[] REQUEST = new byte[] {
-            6, // Size: Amount of proceeding bytes [varint]
-            0, // ID: Has to be 0
-            0, // Protocol Version: Can be anything as long as it's a valid varint
-            2, // Server Address: As it is indexed with a varint to state it's size, we can just skip sending anything by setting it's size to 0
-            0x3A, 0x33, // Port: Can be anything (Notchian servers don't use this)
-            1, // Next State: 1 for status, 2 for login. Therefore, has to be 1
-            1, // Size
-            0, // ID
-    };
+    public static final byte[] REQUEST;
+    static {
+        List<Byte> request = getHandshake(0, ":3", (short) 0, (byte) 1);
+        // Status Request
+        request.add((byte) 1); // Size
+        request.add((byte) 0); // ID
+        REQUEST = Bytes.toArray(request);
+    }
+
+    public static List<Byte> getHandshake(int protocol, String ip, short port, byte state) {
+        List<Byte> arr = new ArrayList<>(List.of(
+                // Packet ID
+                (byte) 0
+        ));
+
+        // Protocol
+        arr.addAll(VarInt.encode(protocol));
+
+        // Address
+        if (ip.isEmpty())
+            arr.add((byte) 0);
+        else {
+            arr.addAll(VarInt.encode(ip.length()));
+            arr.addAll(Bytes.asList(ip.getBytes(StandardCharsets.UTF_8)));
+        }
+
+        // Port (as a short)
+        arr.add((byte) (port >> 8));
+        arr.add((byte) port);
+
+        // Next State
+        // 1: status, 2: login, 3: transfer
+        arr.add(state);
+
+        // Finally start it with the size
+        arr.addAll(0, VarInt.encode(arr.size()));
+
+        return arr;
+    }
+
+
 
     public static String ping(Socket connection) {
         try (OutputStream out = connection.getOutputStream()) {
@@ -30,7 +65,7 @@ public class Pinger {
             // Read the packet id, which should always be 0
             in.read();
             // Properly read the varint. This one contains the length of the following string
-            int json_length = VarInt.decode_varint(in);
+            int json_length = VarInt.decode(in);
             // Finally read the bytes
             byte[] status = in.readNBytes(json_length);
             // Close all resources

@@ -77,7 +77,7 @@ public class Database{
                     "FOREIGN KEY (Address, Port) REFERENCES Servers(Address, Port))");
 
             // Indexes
-            tables.addBatch("CREATE INDEX IF NOT EXISTS ServersIndex ON Servers (Motd, maxplayers, version, onlineplayers, country, icon, cracked, preventsreports)");
+            tables.addBatch("CREATE INDEX IF NOT EXISTS ServersIndex ON Servers (Motd, version, onlineplayers, country, cracked, whitelist, lastseen)");
             tables.addBatch("CREATE INDEX IF NOT EXISTS PlayersIndex ON PlayerHistory (playername)");
             tables.addBatch("CREATE INDEX IF NOT EXISTS ModsIndex ON Mods (modid)");
 

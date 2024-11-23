@@ -11,7 +11,7 @@ import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.HttpUtils;
-import xyz.funtimes909.serverseekerv2.network.Pinger;
+import xyz.funtimes909.serverseekerv2.network.protocols.Handshake;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class ScanManager {
                 try {
                     Socket connection = Connect.connect(server.ip(), server.ports().getFirst().port());
                     if (connection == null) return;
-                    String json = Pinger.ping(connection);
+                    String json = Handshake.ping(connection);
                     if (json == null) return;
                     buildServer(json, server);
                     if (!MasscanUtils.masscanRunning) Main.logger.debug("Added {} to the database! {} Remaining servers!", server.ip(), count[0]);

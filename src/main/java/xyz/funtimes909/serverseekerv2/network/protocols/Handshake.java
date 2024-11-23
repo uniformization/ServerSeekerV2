@@ -1,7 +1,4 @@
-package xyz.funtimes909.serverseekerv2.network;
-
-import com.google.common.primitives.Bytes;
-import xyz.funtimes909.serverseekerv2.util.VarInt;
+package xyz.funtimes909.serverseekerv2.network.protocols;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,7 +7,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pinger {
+import xyz.funtimes909.serverseekerv2.network.Connect;
+import xyz.funtimes909.serverseekerv2.network.PacketUtils;
+import xyz.funtimes909.serverseekerv2.util.VarInt;
+import com.google.common.primitives.Bytes;
+
+
+public class Handshake {
     public static final byte[] REQUEST;
     static {
         List<Byte> request = getHandshake(0, ":3", (short) 0, (byte) 1);
@@ -56,24 +59,30 @@ public class Pinger {
     public static String ping(Socket connection) {
         try (OutputStream out = connection.getOutputStream()) {
             out.write(REQUEST);
+
             InputStream in = connection.getInputStream();
-            // Skip the first varint which indicates the total size of the packet.
-            // Later we properly read a varint that contains the length of the json, so we use that
-            for (byte i = 0; i < 5; i ++)
-                if ((((byte) in.read()) & 0b10000000) == 0)
+            List<Byte> packet = PacketUtils.readStream(in);
+
+            // Set to 1 to skip the protocol version
+            byte i = 1;
+            // Skip the first varint which indicates the size of the string
+            //  we can assume that the rest of the packet is the string
+            for (; i < 6; i ++)
+                if ((packet.get(i) & 0b10000000) == 0)
                     break;
-            // Read the packet id, which should always be 0
-            in.read();
-            // Properly read the varint. This one contains the length of the following string
-            int json_length = VarInt.decode(in);
-            // Finally read the bytes
-            byte[] status = in.readNBytes(json_length);
+
             // Close all resources
             connection.close();
             in.close();
-            return new String(status);
+
+            return new String(Bytes.toArray(packet.subList(i + 1, packet.size())));
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static void main(String[] args) {
+        Socket so = Connect.connect("127.0.0.1", 25565);
+        System.out.println(ping(so));
     }
 }

@@ -1,9 +1,11 @@
-package xyz.funtimes909.serverseekerv2.network;
+package xyz.funtimes909.serverseekerv2.network.protocols;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import xyz.funtimes909.serverseekerv2.network.Connect;
+import xyz.funtimes909.serverseekerv2.network.PacketUtils;
 import xyz.funtimes909.serverseekerv2.util.VarInt;
 
 import java.io.InputStream;
@@ -18,39 +20,44 @@ import java.util.UUID;
 public class Login {
     public static final List<Byte> LOGIN_START = getLoginStart("Herobrine", UUID.randomUUID());
 
-    public static String ping(String ip, short port) {
+    public static String login(String ip, short port) {
         try {
             // First ping the server to get the protocol version
             Socket pingSo = Connect.connect(ip, port);
-            String pingResponse = Pinger.ping(pingSo);
+            String pingResponse = Handshake.ping(pingSo);
             JsonObject pingJson = JsonParser.parseString(pingResponse).getAsJsonObject();
             int protocol = pingJson.get("version").getAsJsonObject().get("protocol").getAsInt();
 
             // Then use that to attempt to connect
             Socket so = Connect.connect(ip, port);
-            return ping(so, protocol);
+            return login(so, protocol);
         } catch (Exception e) {
             return null;
         }
     }
-    public static String ping(Socket so, int protocol) {
+    public static String login(Socket so, int protocol) {
         try {
             OutputStream out = so.getOutputStream();
 
             // The login request starts off with the Handshake and Login Start
-            List<Byte> request = Pinger.getHandshake(protocol, "", (short) 0, (byte) 2);
+            List<Byte> request = Handshake.getHandshake(protocol, "", (short) 0, (byte) 2);
             request.addAll(LOGIN_START);
 
+            // Write the things to the server
             out.write(Bytes.toArray(request));
 
-
+            // And get its response
             InputStream in = so.getInputStream();
-            int length = VarInt.decode(in);
-            System.out.println("Request length: " + length);
-            System.out.println(Arrays.toString(in.readNBytes(length)));
+            System.out.println(PacketUtils.readStream(in));
+
+            // Close everything
+            out.close();
+            in.close();
+            so.close();
 
             return "no errors";
         } catch (Exception e) {
+            System.out.println(e);
             return null;
         }
     }
@@ -80,6 +87,6 @@ public class Login {
     }
 
     public static void main(String[] args) {
-        System.out.println(ping("127.0.0.1", (short) 25565));
+        System.out.println(login("127.0.0.1", (short) 25565));
     }
 }

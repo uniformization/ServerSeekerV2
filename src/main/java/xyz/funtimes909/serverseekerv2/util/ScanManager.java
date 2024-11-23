@@ -35,8 +35,11 @@ public class ScanManager {
             Runnable task = () -> {
                 try {
                     Socket connection = Connect.connect(server.ip(), server.ports().getFirst().port());
+
                     if (connection == null) return;
                     String json = Handshake.ping(connection);
+                    connection.close();
+
                     if (json == null) return;
                     buildServer(json, server);
                     if (!MasscanUtils.masscanRunning) Main.logger.debug("Added {} to the database! {} Remaining servers!", server.ip(), count[0]);

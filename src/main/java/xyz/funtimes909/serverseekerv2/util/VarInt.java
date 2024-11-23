@@ -2,33 +2,27 @@ package xyz.funtimes909.serverseekerv2.util;
 
 import kotlin.Pair;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 public class VarInt {
-    public static int decode(InputStream is) throws IOException {
-        int val = 0;
-        for (int i = 0; i < (7 /* size */ * 5 /* max size */); i += 7) {
-            byte byte_read = (byte) is.read();
-            // NOTE: 0x7f is 7 ones
-            val |= (byte_read & 0b0111_1111) << i;
-
-            if ((byte_read >> 7) == 0)
-                break;
-        }
-        return val;
-    }
-
     /**
      * Attempts to decode the varint at the start of a byte array
      * @return A Pair containing the value and the n bytes needed to get it in the byte array
      */
     public static Pair<Integer, Byte> decode(byte[] in) {
+        return decode(in, 0);
+    }
+    /**
+     * Attempts to decode the varint at the start of a byte array
+     * @param i Starting index to the byte array
+     * @return A Pair containing the value and the n bytes needed to get it in the byte array
+     */
+    public static Pair<Integer, Byte> decode(byte[] in, int i) {
         int val = 0;
         byte count = 0;
 
-        for (byte b : in) {
+        for (; i < in.length; i++) {
+            byte b = in[i];
             val |= (b & 0b0111_1111) << count;
             if (((b >> 7) != -1) || (count > (7 /* size */ * 5 /* max size */)))
                 break;

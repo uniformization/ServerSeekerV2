@@ -11,6 +11,7 @@ import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
 import xyz.funtimes909.serverseekerv2.util.VarInt;
 import com.google.common.primitives.Bytes;
+import xyz.funtimes909.serverseekerv2.util.VarTypes;
 
 
 public class Handshake {
@@ -57,25 +58,19 @@ public class Handshake {
 
 
     public static String ping(Socket connection) {
-        try (OutputStream out = connection.getOutputStream()) {
+        try {
+            OutputStream out = connection.getOutputStream();
             out.write(REQUEST);
 
             InputStream in = connection.getInputStream();
             List<Byte> packet = PacketUtils.readStream(in);
 
-            // Set to 1 to skip the protocol version
-            byte i = 1;
-            // Skip the first varint which indicates the size of the string
-            //  we can assume that the rest of the packet is the string
-            for (; i < 6; i ++)
-                if ((packet.get(i) & 0b10000000) == 0)
-                    break;
-
-            // Close all resources
-            connection.close();
+            // Close connections
+            out.close();
             in.close();
 
-            return new String(Bytes.toArray(packet.subList(i + 1, packet.size())));
+            // Start at the 2nd byte as the first is the protocol version (which is always 0)
+            return VarTypes.readString(Bytes.toArray(packet), 1).component1();
         } catch (Exception e) {
             return null;
         }

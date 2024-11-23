@@ -58,20 +58,18 @@ public class Handshake {
 
 
     public static String ping(Socket connection) {
-        try {
-            OutputStream out = connection.getOutputStream();
+        try (
+                OutputStream out = connection.getOutputStream();
+                InputStream in = connection.getInputStream();
+                ) {
+            // Write request
             out.write(REQUEST);
-
-            InputStream in = connection.getInputStream();
+            // Read the packet
             List<Byte> packet = PacketUtils.readStream(in);
-
-            // Close connections
-            out.close();
-            in.close();
 
             // Start at the 2nd byte as the first is the protocol version (which is always 0)
             return VarTypes.readString(Bytes.toArray(packet), 1).component1();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return null;
         }
     }

@@ -23,29 +23,29 @@ public class Login {
     public static final List<Byte> LOGIN_START = getLoginStart("Herobrine", UUID.randomUUID());
 
     public static String login(String ip, short port) {
-        try {
-            // First ping the server to get the protocol version
-            Socket pingSo = Connect.connect(ip, port);
-            String pingResponse = Handshake.ping(pingSo);
-            JsonObject pingJson = JsonParser.parseString(pingResponse).getAsJsonObject();
-            int protocol = pingJson.get("version").getAsJsonObject().get("protocol").getAsInt();
-            pingSo.close();
+        int protocol = 0;
 
-            System.out.println("Protocol version: " + protocol);
+        // First ping the server to get the protocol version
+        try (Socket so = Connect.connect(ip, port)) {
+            String status = Handshake.ping(so);
+            JsonObject pingJson = JsonParser.parseString(status).getAsJsonObject();
+            protocol = pingJson.get("version").getAsJsonObject().get("protocol").getAsInt();
+        } catch (Exception ignored) {}
 
-            // Then use that to attempt to connect
-            Socket so = Connect.connect(ip, port);
+        System.out.println("Protocol version: " + protocol);
+
+        // Then try to login
+        try (Socket so = Connect.connect(ip, port)) {
             String login = login(so, protocol);
-            so.close();
-            return login;
-        } catch (Exception e) {
-            return null;
-        }
+        } catch (Exception ignored) {}
+
+        return null;
     }
     public static String login(Socket so, int protocol) {
-        try {
-            OutputStream out = so.getOutputStream();
-
+        try (
+                OutputStream out = so.getOutputStream();
+                InputStream in = so.getInputStream();
+                ) {
             // The login request starts off with the Handshake and Login Start
             List<Byte> request = Handshake.getHandshake(protocol, "", (short) 0, (byte) 2);
             request.addAll(LOGIN_START);
@@ -54,7 +54,6 @@ public class Login {
             out.write(Bytes.toArray(request));
 
             // And get its response
-            InputStream in = so.getInputStream();
             List<Byte> packet = PacketUtils.readStream(in);
             byte[] packetBa = Bytes.toArray(packet);
 
@@ -78,10 +77,6 @@ public class Login {
             System.out.println("Public key  : " + publicKey.component1());
             System.out.println("Verify token: " + verifyToken.component1());
             System.out.println("Should AUTH : " + packetBa[pointer]);
-
-            // Close everything
-            out.close();
-            in.close();
 
             return "no errors";
         } catch (Exception e) {

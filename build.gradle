@@ -36,7 +36,7 @@ application {
 }
 
 jar {
-//    from "LICENSE.txt"
+    from "LICENSE.txt"
     manifest {
         attributes(
                 'Main-Class': 'xyz.funtimes909.serverseekerv2.Main'

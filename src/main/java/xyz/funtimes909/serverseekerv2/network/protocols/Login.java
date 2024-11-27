@@ -9,6 +9,9 @@ import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarByteArray;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
 import xyz.funtimes909.serverseekerv2.util.*;
 
 import javax.crypto.*;
@@ -70,14 +73,14 @@ public class Login {
 
             int pointer = 1;
 
-            Pair<String, Integer> serverID = VarTypes.readString(packetBa, pointer);
-            pointer += serverID.component2();
+            VarString serverID = VarString.decode(packetBa, pointer);
+            pointer += serverID.getSize();
 
-            Pair<List<Byte>, Integer> publicKey = VarTypes.readByteArray(packetBa, pointer);
-            pointer += publicKey.component2();
+            VarByteArray publicKey = VarByteArray.decode(packetBa, pointer);
+            pointer += publicKey.getSize();
 
-            Pair<List<Byte>, Integer> verifyToken = VarTypes.readByteArray(packetBa, pointer);
-            pointer += verifyToken.component2();
+            VarByteArray verifyToken = VarByteArray.decode(packetBa, pointer);
+            pointer += verifyToken.getSize();
 
 
 //            System.out.println("Server ID   : " + serverID.component1());
@@ -103,7 +106,7 @@ public class Login {
 
 
             KeyFactory keyFactory = KeyFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Bytes.toArray(publicKey.component1()));
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKey.get());
             BCRSAPublicKey serverPublicKey = (BCRSAPublicKey) keyFactory.generatePublic(keySpec);
 
             Cipher serverEncryptCipher = Cipher.getInstance("RSA/None/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
@@ -121,7 +124,7 @@ public class Login {
             encryptionResponse.addAll(Bytes.asList(encryptedSharedSecret));
 
             // Token
-            byte[] encryptedVerifyToken = serverEncryptCipher.doFinal(Bytes.toArray(verifyToken.component1()));
+            byte[] encryptedVerifyToken = serverEncryptCipher.doFinal(verifyToken.get());
 
             encryptionResponse.addAll(VarInt.encode(encryptedVerifyToken.length));
             encryptionResponse.addAll(Bytes.asList(encryptedVerifyToken));

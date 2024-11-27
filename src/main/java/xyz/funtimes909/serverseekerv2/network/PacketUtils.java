@@ -1,8 +1,7 @@
 package xyz.funtimes909.serverseekerv2.network;
 
-import com.google.common.primitives.Bytes;
 import kotlin.Pair;
-import xyz.funtimes909.serverseekerv2.util.VarInt;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -35,11 +34,11 @@ public class PacketUtils {
         int packetStartIndex = 0;
 
         while (packetStartIndex < packet.length) {
-            Pair<Integer, Byte> packetSize = VarInt.decode(packet, packetStartIndex);
-            packetStartIndex += packetSize.component1() + packetSize.component2();
+            VarInt packetSize = VarInt.decode(packet, packetStartIndex);
+            packetStartIndex += packetSize.get() + packetSize.getSize();
             result.add(Arrays.copyOfRange(
                     packet,
-                    packetStartIndex - packetSize.component1() - 1,
+                    packetStartIndex - packetSize.get() - 1,
                     packetStartIndex - 1
             ));
         }

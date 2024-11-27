@@ -9,9 +9,9 @@ import java.util.List;
 
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
-import xyz.funtimes909.serverseekerv2.util.VarInt;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 import com.google.common.primitives.Bytes;
-import xyz.funtimes909.serverseekerv2.util.VarTypes;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
 
 
 public class Handshake {
@@ -68,7 +68,7 @@ public class Handshake {
             byte[] packet = PacketUtils.readStream(in);
 
             // Start at the 2nd byte as the first is the protocol version (which is always 0)
-            return VarTypes.readString(packet, 1).component1();
+            return VarString.decode(packet, 1).get();
         } catch (Exception ignored) {
             return null;
         }

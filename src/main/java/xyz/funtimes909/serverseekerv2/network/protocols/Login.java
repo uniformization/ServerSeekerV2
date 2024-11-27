@@ -26,7 +26,7 @@ public class Login {
     public static final String username = "Herobrine";
     public static final UUID uuid = UUID.fromString("f84c6a79-0a4e-45e0-879b-cd49ebd4c4e2");
 
-    public static final List<Byte> LOGIN_START = getLoginStart(username, uuid);
+    public static final List<Byte> REQUEST = getLoginStart(username, uuid);
 
 
     public static String login(String ip, short port) {
@@ -55,14 +55,13 @@ public class Login {
                 ) {
             // The login request starts off with the Handshake and Login Start
             List<Byte> request = Handshake.getHandshake(protocol, "", (short) 0, (byte) 2);
-            request.addAll(LOGIN_START);
+            request.addAll(REQUEST);
 
             // Write the things to the server
             out.write(Bytes.toArray(request));
 
             // And get its response
-            List<Byte> packet = PacketUtils.readStream(in);
-            byte[] packetBa = Bytes.toArray(packet);
+            byte[] packetBa = PacketUtils.readStream(in);
 
             int pointer = 1;
 

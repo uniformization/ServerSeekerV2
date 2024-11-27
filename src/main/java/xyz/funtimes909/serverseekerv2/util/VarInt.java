@@ -2,6 +2,8 @@ package xyz.funtimes909.serverseekerv2.util;
 
 import kotlin.Pair;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class VarInt {
@@ -30,6 +32,24 @@ public class VarInt {
         }
 
         return new Pair<>(val, (byte) ((count/7) + 1));
+    }
+
+
+    /**
+     * Attempts to decode the varint from an input stream
+     * @return The decoded input stream
+     */
+    public static Integer decode(InputStream in) throws IOException {
+        int val = 0;
+
+        for (byte count = 0; count < (7 /* size */ * 5 /* max size */); count += 7) {
+            byte b = (byte) in.read();
+            val |= (b & 0b0111_1111) << count;
+            if (((b >> 7) != -1))
+                break;
+        }
+
+        return val;
     }
 
     public static ArrayList<Byte> encode(int v) {

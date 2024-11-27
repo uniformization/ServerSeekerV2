@@ -21,6 +21,7 @@ public class Handshake {
         // Status Request
         request.add((byte) 1); // Size
         request.add((byte) 0); // ID
+
         REQUEST = Bytes.toArray(request);
     }
 

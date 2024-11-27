@@ -9,6 +9,8 @@ import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
+import xyz.funtimes909.serverseekerv2.types.IncomingPacketType;
+import xyz.funtimes909.serverseekerv2.types.protocols.Encryption;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarByteArray;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
@@ -26,10 +28,17 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 
 public class Login {
+    // The default username & uuid to attempt to login to servers if none is given
     public static final String username = "Herobrine";
     public static final UUID uuid = UUID.fromString("f84c6a79-0a4e-45e0-879b-cd49ebd4c4e2");
 
     public static final List<Byte> REQUEST = getLoginStart(username, uuid);
+
+    // NOTE: This is only for testing. Once deployed, the BC provider will be added in the main function
+    static {
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null)
+            Security.addProvider(new BouncyCastleProvider());
+    }
 
 
     public static String login(String ip, short port) {
@@ -51,43 +60,30 @@ public class Login {
 
         return null;
     }
+
+
     public static String login(Socket so, int protocol) {
+        return login(so, protocol, REQUEST, "");
+    }
+    public static String login(Socket so, int protocol, String username, UUID uuid, String accessToken) {
+        return login(so, protocol, getLoginStart(username, uuid), accessToken);
+    }
+    public static String login(Socket so, int protocol, List<Byte> loginRequest, String accessToken) {
         try (
                 OutputStream out = so.getOutputStream();
                 InputStream in = so.getInputStream();
                 ) {
-            // TODO: make this only run once
-            Security.addProvider(new BouncyCastleProvider());
-
-
-
             // The login request starts off with the Handshake and Login Start
             List<Byte> request = Handshake.getHandshake(protocol, "", (short) 0, (byte) 2);
-            request.addAll(REQUEST);
+            request.addAll(loginRequest);
 
             // Write the things to the server
             out.write(Bytes.toArray(request));
 
             // And get its response
-            byte[] packetBa = PacketUtils.readStream(in);
+            byte[] packet = PacketUtils.readStream(in);
 
-            int pointer = 1;
-
-            VarString serverID = VarString.decode(packetBa, pointer);
-            pointer += serverID.getSize();
-
-            VarByteArray publicKey = VarByteArray.decode(packetBa, pointer);
-            pointer += publicKey.getSize();
-
-            VarByteArray verifyToken = VarByteArray.decode(packetBa, pointer);
-            pointer += verifyToken.getSize();
-
-
-//            System.out.println("Server ID   : " + serverID.component1());
-//            System.out.println("Public key  : " + publicKey.component1());
-//            System.out.println("Verify token: " + verifyToken.component1());
-//            System.out.println("Should AUTH : " + packetBa[pointer]);
-
+            Encryption encryptionPacket = (Encryption) IncomingPacketType.ENCRYPTION.getInstance().decode(packet);
 
 
             byte[] sharedSecret = new byte[16];
@@ -103,14 +99,8 @@ public class Login {
             encryptCipher.init(Cipher.ENCRYPT_MODE, sharedSecretKey, sharedSecretIv);
 
 
-
-
-            KeyFactory keyFactory = KeyFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKey.get());
-            BCRSAPublicKey serverPublicKey = (BCRSAPublicKey) keyFactory.generatePublic(keySpec);
-
             Cipher serverEncryptCipher = Cipher.getInstance("RSA/None/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
-            serverEncryptCipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
+            serverEncryptCipher.init(Cipher.ENCRYPT_MODE, encryptionPacket.publicKey);
 
 
             ArrayList<Byte> encryptionResponse = new ArrayList<>();
@@ -124,7 +114,7 @@ public class Login {
             encryptionResponse.addAll(Bytes.asList(encryptedSharedSecret));
 
             // Token
-            byte[] encryptedVerifyToken = serverEncryptCipher.doFinal(verifyToken.get());
+            byte[] encryptedVerifyToken = serverEncryptCipher.doFinal(encryptionPacket.verifyToken);
 
             encryptionResponse.addAll(VarInt.encode(encryptedVerifyToken.length));
             encryptionResponse.addAll(Bytes.asList(encryptedVerifyToken));
@@ -176,6 +166,7 @@ public class Login {
     }
 
     public static void main(String[] args) {
+        System.out.println(IncomingPacketType.COMPRESSION.getProtocol());
         System.out.println(login("127.0.0.1", (short) 25565));
     }
 }

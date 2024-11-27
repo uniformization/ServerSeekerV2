@@ -4,7 +4,7 @@ import com.google.common.primitives.Bytes;
 
 import java.util.List;
 
-public abstract class AbstractVarType<T, S extends AbstractVarType<?, ?>> {
+public abstract class AbstractVarType<T, S extends AbstractVarType<T, S>> {
     protected T value;
     protected int size;
 
@@ -14,13 +14,6 @@ public abstract class AbstractVarType<T, S extends AbstractVarType<?, ?>> {
     }
 
 
-    /**
-     * Attempts to decode the vartype at the start of a byte array
-     * @return A Pair containing the value and the n bytes needed to get it in the byte array
-     */
-    public static <T, S> S decode(byte[] in) {
-        return decode(in, 0);
-    }
     /**
      * Attempts to decode the vartype at the start of a byte array
      * @param index The index into the array list

@@ -1,11 +1,13 @@
 package xyz.funtimes909.serverseekerv2;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.funtimes909.serverseekerv2.builders.Config;
 import xyz.funtimes909.serverseekerv2.util.*;
 
 import java.io.File;
+import java.security.Security;
 
 public class Main {
     public static int connectionTimeout;
@@ -53,6 +55,9 @@ public class Main {
 
         // Init database connection pool and create tables if they don't exist
         Database.init();
+
+        // Add the bouncy castle provider
+        Security.addProvider(new BouncyCastleProvider());
 
         // TODO Make this not bad
         while (true) {

@@ -8,24 +8,24 @@ import xyz.funtimes909.serverseekerv2.types.protocols.LoginSuccess;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 
 public enum IncomingPacketType {
-    ERROR(Error.class),
+    ERROR(Error.INSTANCE),
 
-    DISCONNECT(Disconnect.class),
-    ENCRYPTION(Encryption.class),
-    LOGIN_SUCCESS(LoginSuccess.class),
-    COMPRESSION(Compression.class);
+    DISCONNECT(Disconnect.INSTANCE),
+    ENCRYPTION(Encryption.INSTANCE),
+    LOGIN_SUCCESS(LoginSuccess.INSTANCE),
+    COMPRESSION(Compression.INSTANCE);
 
 
     private final int protocol;
     private final AbstractProtocol<?> instance;
 
-    IncomingPacketType(Class<? extends AbstractProtocol<?>> protocolClass) {
+    IncomingPacketType(AbstractProtocol<?> protocolInstance) {
         int protocol = -1;
         AbstractProtocol<?> instance = new Error();
 
         try {
-            instance = protocolClass.getDeclaredConstructor().newInstance();
-            protocol = instance.PROTOCOL();
+            instance = protocolInstance;
+            protocol = protocolInstance.PROTOCOL();
         } catch (Exception ignored) { }
 
         this.protocol = protocol;

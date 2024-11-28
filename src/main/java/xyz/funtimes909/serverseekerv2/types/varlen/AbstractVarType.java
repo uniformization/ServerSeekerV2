@@ -20,7 +20,7 @@ public abstract class AbstractVarType<T, S extends AbstractVarType<T, S>> {
      * @return A Pair containing the value and the n bytes needed to get it in the byte array
      */
     public static <T, S> S decode(byte[] in, int index) {
-        throw new RuntimeException("Decode not implemented");
+        throw new RuntimeException("Decode vartype not implemented");
     };
     /**
      * Attempts to encode the type into byte array

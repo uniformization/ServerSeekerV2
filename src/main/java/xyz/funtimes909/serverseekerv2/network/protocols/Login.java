@@ -4,34 +4,31 @@ import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import kotlin.Pair;
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
 import xyz.funtimes909.serverseekerv2.types.IncomingPacketType;
+import xyz.funtimes909.serverseekerv2.types.protocols.Compression;
+import xyz.funtimes909.serverseekerv2.types.protocols.Disconnect;
 import xyz.funtimes909.serverseekerv2.types.protocols.Encryption;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarByteArray;
+import xyz.funtimes909.serverseekerv2.types.protocols.LoginSuccess;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
-import xyz.funtimes909.serverseekerv2.util.*;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 
 public class Login {
     // The default username & uuid to attempt to login to servers if none is given
     public static final String username = "Herobrine";
     public static final UUID uuid = UUID.fromString("f84c6a79-0a4e-45e0-879b-cd49ebd4c4e2");
-
     public static final List<Byte> REQUEST = getLoginStart(username, uuid);
 
     // NOTE: This is only for testing. Once deployed, the BC provider will be added in the main function
@@ -41,7 +38,26 @@ public class Login {
     }
 
 
-    public static String login(String ip, short port) {
+    private final InputStream iStream;
+    private final OutputStream oStream;
+    // The secrets are only generated if encryption is enabled on the server
+    public byte[] sharedSecret;
+    public Cipher decryptCipher;
+    public Cipher encryptCipher;
+
+    public int compressionThreshold = -1;
+
+
+    public Login(InputStream iStream, OutputStream oStream) {
+        this.iStream = iStream;
+        this.oStream = oStream;
+    }
+
+
+    /**
+     * A test login function. SHOULD NOT BE USED IN PRODUCTION
+     */
+    public static Login login(String ip, short port) {
         int protocol = 0;
 
         // First ping the server to get the protocol version
@@ -55,89 +71,109 @@ public class Login {
 
         // Then try to login
         try (Socket so = Connect.connect(ip, port)) {
-            return login(so, protocol);
+            try (
+                    OutputStream out = so.getOutputStream();
+                    InputStream in = so.getInputStream();
+            ) {
+                Login login = new Login(in, out);
+                login.login(protocol);
+                return login;
+            } catch (Exception e) { e.printStackTrace();}
         } catch (Exception ignored) {}
 
         return null;
     }
 
 
-    public static String login(Socket so, int protocol) {
-        return login(so, protocol, REQUEST, "");
+    public void login(int protocol)
+            throws InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchPaddingException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+        login(protocol, REQUEST, "");
     }
-    public static String login(Socket so, int protocol, String username, UUID uuid, String accessToken) {
-        return login(so, protocol, getLoginStart(username, uuid), accessToken);
+    public void login(int protocol, String username, UUID uuid, String accessToken)
+            throws InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchPaddingException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+        login(protocol, getLoginStart(username, uuid), accessToken);
     }
-    public static String login(Socket so, int protocol, List<Byte> loginRequest, String accessToken) {
-        try (
-                OutputStream out = so.getOutputStream();
-                InputStream in = so.getInputStream();
-                ) {
-            // The login request starts off with the Handshake and Login Start
-            List<Byte> request = Handshake.getHandshake(protocol, "", (short) 0, (byte) 2);
-            request.addAll(loginRequest);
+    public void login(int protocol, List<Byte> loginRequest, String accessToken)
+            throws IllegalBlockSizeException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException
+    {
+        // The login request starts off with the Handshake and Login Start
+        // TODO: Add a way to give the IP & Port used for the handshake protocol
+        List<Byte> request = Handshake.getHandshake(protocol, "", (short) 0, (byte) 2);
+        request.addAll(loginRequest);
+        // Write the things to the server
+        this.oStream.write(Bytes.toArray(request));
 
-            // Write the things to the server
-            out.write(Bytes.toArray(request));
 
+        byte[] packet;
+
+        // Try to get a good response within 10 packets
+        loop: for (int i = 0; i < 10; i++) {
             // And get its response
-            byte[] packet = PacketUtils.readStream(in);
+            if (sharedSecret == null)
+                packet = PacketUtils.readStream(this.iStream, compressionThreshold);
+            else
+                packet = PacketUtils.readEncryptedStream(this.iStream, decryptCipher, compressionThreshold).getFirst();
 
-            Encryption encryptionPacket = (Encryption) IncomingPacketType.ENCRYPTION.getInstance().decode(packet);
+            switch (IncomingPacketType.getType(VarInt.decode(packet, 0).get())) {
+                case DISCONNECT -> {
+                    System.out.println(Arrays.toString(packet));
+                    Disconnect disconnectPacket = Disconnect.decode(packet);
+                    System.out.println(disconnectPacket.reason);
+                    break loop;
+                }
+                case COMPRESSION -> {
+                    Compression compressionPacket = Compression.decode(packet);
+                    this.compressionThreshold = compressionPacket.threshold;
+                }
+                case ENCRYPTION -> {
+                    Encryption encryptionPacket = Encryption.decode(packet);
 
+                    this.sharedSecret = new byte[16];
+                    SecureRandom.getInstanceStrong().nextBytes(this.sharedSecret);
+                    SecretKeySpec sharedSecretKey = new SecretKeySpec(sharedSecret, "AES");
+                    IvParameterSpec sharedSecretIv = new IvParameterSpec(sharedSecret);
 
-            byte[] sharedSecret = new byte[16];
-            SecureRandom.getInstanceStrong().nextBytes(sharedSecret);
-            SecretKeySpec sharedSecretKey = new SecretKeySpec(sharedSecret, "AES");
-            IvParameterSpec sharedSecretIv = new IvParameterSpec(sharedSecret);
-//            System.out.println("Secret: " + Bytes.asList(sharedSecret));
+                    this.decryptCipher = Cipher.getInstance("AES/CFB8/NoPadding", BouncyCastleProvider.PROVIDER_NAME);
+                    this.decryptCipher.init(Cipher.DECRYPT_MODE, sharedSecretKey, sharedSecretIv);
+                    this.encryptCipher = Cipher.getInstance("AES/CFB8/NoPadding", BouncyCastleProvider.PROVIDER_NAME);
+                    this.encryptCipher.init(Cipher.ENCRYPT_MODE, sharedSecretKey, sharedSecretIv);
+                    //System.out.println(Bytes.asList(sharedSecretKey.getEncoded()));
+                    //System.out.println(Bytes.asList(sharedSecret));
 
-
-            Cipher decryptCipher = Cipher.getInstance("AES/CFB8/NoPadding", BouncyCastleProvider.PROVIDER_NAME);
-            decryptCipher.init(Cipher.DECRYPT_MODE, sharedSecretKey, sharedSecretIv);
-            Cipher encryptCipher = Cipher.getInstance("AES/CFB8/NoPadding", BouncyCastleProvider.PROVIDER_NAME);
-            encryptCipher.init(Cipher.ENCRYPT_MODE, sharedSecretKey, sharedSecretIv);
-
-
-            Cipher serverEncryptCipher = Cipher.getInstance("RSA/None/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
-            serverEncryptCipher.init(Cipher.ENCRYPT_MODE, encryptionPacket.publicKey);
-
-
-            ArrayList<Byte> encryptionResponse = new ArrayList<>();
-            // Protocol
-            encryptionResponse.add((byte) 1);
-
-            // Shared secret
-            byte[] encryptedSharedSecret = serverEncryptCipher.doFinal(sharedSecret);
-
-            encryptionResponse.addAll(VarInt.encode(encryptedSharedSecret.length));
-            encryptionResponse.addAll(Bytes.asList(encryptedSharedSecret));
-
-            // Token
-            byte[] encryptedVerifyToken = serverEncryptCipher.doFinal(encryptionPacket.verifyToken);
-
-            encryptionResponse.addAll(VarInt.encode(encryptedVerifyToken.length));
-            encryptionResponse.addAll(Bytes.asList(encryptedVerifyToken));
-
-            // Prefix with size
-            encryptionResponse.addAll(0, VarInt.encode(encryptionResponse.size()));
-
-            out.write(Bytes.toArray(encryptionResponse));
+                    Cipher serverEncryptCipher = Cipher.getInstance("RSA/None/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
+                    serverEncryptCipher.init(Cipher.ENCRYPT_MODE, encryptionPacket.publicKey);
 
 
+                    /* ========== Create the response packet ========== */
+                    // TODO: Move this out of here
+                    ArrayList<Byte> encryptionResponse = new ArrayList<>();
+                    // Protocol
+                    encryptionResponse.add((byte) 1);
 
-            byte[] serverReturn = PacketUtils.readEncryptedStream(in, decryptCipher).getFirst();
-            System.out.println(Bytes.asList(serverReturn));
-            System.out.println(new String(serverReturn));
-//            byte[] buffer = new byte[1024];
-//            in.read(buffer);
-//            System.out.println(Bytes.asList(buffer));
+                    // Shared secret
+                    byte[] encryptedSharedSecret = serverEncryptCipher.doFinal(sharedSecret);
 
+                    encryptionResponse.addAll(VarInt.encode(encryptedSharedSecret.length));
+                    encryptionResponse.addAll(Bytes.asList(encryptedSharedSecret));
 
-            return "no errors";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+                    // Token
+                    byte[] encryptedVerifyToken = serverEncryptCipher.doFinal(encryptionPacket.verifyToken);
+
+                    encryptionResponse.addAll(VarInt.encode(encryptedVerifyToken.length));
+                    encryptionResponse.addAll(Bytes.asList(encryptedVerifyToken));
+
+                    // Prefix with size
+                    encryptionResponse.addAll(0, VarInt.encode(encryptionResponse.size()));
+
+                    this.oStream.write(Bytes.toArray(encryptionResponse));
+                }
+                case LOGIN_SUCCESS -> {
+                    LoginSuccess loginPacket = LoginSuccess.decode(packet);
+                    System.out.println(Bytes.asList(packet));
+                    break loop;
+                }
+                case null, default -> { }
+            }
         }
     }
 
@@ -165,8 +201,9 @@ public class Login {
         return arr;
     }
 
+
+
     public static void main(String[] args) {
-        System.out.println(IncomingPacketType.COMPRESSION.getProtocol());
         System.out.println(login("127.0.0.1", (short) 25565));
     }
 }

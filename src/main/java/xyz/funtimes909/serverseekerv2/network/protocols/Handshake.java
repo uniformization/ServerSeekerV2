@@ -65,11 +65,14 @@ public class Handshake {
                 ) {
             // Write request
             out.write(REQUEST);
-            // Read the packet
-            byte[] packet = PacketUtils.readStream(in);
 
-            // Start at the 2nd byte as the first is the protocol version (which is always 0)
-            return VarString.decode(packet, 1).get();
+            // Start reading the packet
+            int size = VarInt.decode(in);
+            return VarString.decode(
+                    in.readNBytes(size),
+                    // Start at the 2nd byte as the first is the protocol version (which is always 0)
+                    1
+            ).get();
         } catch (Exception ignored) {
             return null;
         }

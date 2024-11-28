@@ -11,6 +11,10 @@ import java.security.KeyFactory;
 import java.security.spec.X509EncodedKeySpec;
 
 public class Encryption implements AbstractProtocol<Encryption> {
+    public static final AbstractProtocol<?> INSTANCE = new Encryption();
+    @Override
+    public int PROTOCOL() { return 1; }
+
     public String serverID = "";
     public BCRSAPublicKey publicKey = null;
     public byte[] verifyToken = new byte[0];
@@ -24,13 +28,8 @@ public class Encryption implements AbstractProtocol<Encryption> {
         this.shouldAuth = shouldAuth;
     }
 
-    @Override
-    public int PROTOCOL() {
-        return 1;
-    }
 
-    @Override
-    public Encryption decode(byte[] in) {
+    public static Encryption decode(byte[] in) {
         try {
             int pointer = 1;
 

@@ -164,7 +164,7 @@ public class ScanManager {
                             if (UUID.fromString(uuid).version() == 3) cracked = true;
 
                             for (Map.Entry<String, String> trackedPlayer : PlayerTracking.playerTracker.entrySet()) {
-                                if (trackedPlayer.getKey().equalsIgnoreCase(name)) {
+                                if (trackedPlayer.getKey().equalsIgnoreCase(name) && UUID.fromString(uuid).version() == 3) {
                                     HttpUtils.sendWebhook(trackedPlayer.getValue(), trackedPlayer.getKey(), address);
                                     Main.logger.info("{} found in tracks.json, sending POST to webhook", trackedPlayer.getKey());
                                 }

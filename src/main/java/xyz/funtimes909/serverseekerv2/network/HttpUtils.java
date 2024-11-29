@@ -33,7 +33,7 @@ public class HttpUtils {
     }
 
     public static void sendWebhook(String url, String player, String address) {
-        String info = "{\n" +
+        String embed = "{\n" +
                 "  \"embeds\": [\n" +
                 "    {\n" +
                 "      \"title\": \"Tracked player found on server!\",\n" +
@@ -50,11 +50,10 @@ public class HttpUtils {
                 "}";
 
         try (HttpClient client = HttpClient.newHttpClient()) {
-
             HttpRequest request = HttpRequest.newBuilder()
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(info))
+                    .POST(HttpRequest.BodyPublishers.ofString(embed))
                     .uri(URI.create(url))
                     .build();
 

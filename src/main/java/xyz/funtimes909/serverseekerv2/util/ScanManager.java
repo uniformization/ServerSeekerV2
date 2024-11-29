@@ -206,9 +206,7 @@ public class ScanManager {
                     .build();
 
             Database.updateServer(server);
-        } catch (JsonSyntaxException | IllegalStateException e) {
-            e.printStackTrace();
-        }
+        } catch (JsonSyntaxException | IllegalStateException ignored) {}
     }
 
     private static void parseMOTD(JsonElement element, int limit, StringBuilder motd) {

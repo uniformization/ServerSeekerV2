@@ -1,6 +1,5 @@
 package xyz.funtimes909.serverseekerv2.network;
 
-import kotlin.Pair;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 
 import javax.crypto.BadPaddingException;

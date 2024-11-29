@@ -1,13 +1,10 @@
-package xyz.funtimes909.serverseekerv2.types;
+package xyz.funtimes909.serverseekerv2.types.protocols.login;
 
-import xyz.funtimes909.serverseekerv2.types.protocols.Compression;
-import xyz.funtimes909.serverseekerv2.types.protocols.Disconnect;
-import xyz.funtimes909.serverseekerv2.types.protocols.Encryption;
+import xyz.funtimes909.serverseekerv2.types.protocols.AbstractProtocol;
 import xyz.funtimes909.serverseekerv2.types.protocols.Error;
-import xyz.funtimes909.serverseekerv2.types.protocols.LoginSuccess;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.*;
 
-public enum IncomingPacketType {
+public enum LoginPacketType {
     ERROR(Error.INSTANCE),
 
     DISCONNECT(Disconnect.INSTANCE),
@@ -19,9 +16,9 @@ public enum IncomingPacketType {
     private final int protocol;
     private final AbstractProtocol<?> instance;
 
-    IncomingPacketType(AbstractProtocol<?> protocolInstance) {
+    LoginPacketType(AbstractProtocol<?> protocolInstance) {
         int protocol = -1;
-        AbstractProtocol<?> instance = new Error();
+        AbstractProtocol<?> instance = AbstractProtocol.INSTANCE;
 
         try {
             instance = protocolInstance;
@@ -39,8 +36,8 @@ public enum IncomingPacketType {
         return instance;
     }
 
-    public static IncomingPacketType getType(int protocol) {
-        for (IncomingPacketType t: IncomingPacketType.values()) {
+    public static LoginPacketType getType(int protocol) {
+        for (LoginPacketType t: LoginPacketType.values()) {
             if (t.protocol == protocol)
                 return t;
         }

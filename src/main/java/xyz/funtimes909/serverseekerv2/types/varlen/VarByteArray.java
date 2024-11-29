@@ -1,10 +1,19 @@
 package xyz.funtimes909.serverseekerv2.types.varlen;
 
+import xyz.funtimes909.serverseekerv2.util.PacketFormatter;
+
 import java.util.Arrays;
+import java.util.List;
 
 public class VarByteArray extends AbstractVarType<byte[], VarByteArray> {
+    public VarByteArray() { super(null, 0); }
     protected VarByteArray(byte[] value, int size) {
         super(value, size);
+    }
+
+    @Override
+    public Class<?> getType() {
+        return byte[].class;
     }
 
 
@@ -16,7 +25,16 @@ public class VarByteArray extends AbstractVarType<byte[], VarByteArray> {
         );
     }
 
-    public static byte[] encode(byte[] in) {
-        return prefixSize(in);
+    public static List<Byte> encode(byte[] in) {
+        return PacketFormatter.prefixSize(in);
+    }
+
+    @Override
+    public List<Byte> encodeSelf() {
+        return encode(this.value);
+    }
+    @Override
+    public List<Byte> encodeValue(Object in) {
+        return encode((byte[]) in);
     }
 }

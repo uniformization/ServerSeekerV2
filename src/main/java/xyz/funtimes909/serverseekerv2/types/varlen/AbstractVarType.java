@@ -13,6 +13,8 @@ public abstract class AbstractVarType<T, S extends AbstractVarType<T, S>> {
         this.size = size;
     }
 
+    /** The type of the value (should be equivalent to `T.getClass()` or `get().getClass()`) */
+    abstract public Class<?> getType();
 
     /**
      * Attempts to decode the vartype at the start of a byte array
@@ -25,16 +27,12 @@ public abstract class AbstractVarType<T, S extends AbstractVarType<T, S>> {
     /**
      * Attempts to encode the type into byte array
      */
-    public static <T> byte[] encode(T in) {
+    public static <T> List<Byte> encode(T in) {
         throw new RuntimeException("Encode not implemented");
     };
+    abstract public List<Byte> encodeSelf();
+    abstract public List<Byte> encodeValue(Object in);
 
-
-    protected static byte[] prefixSize(byte[] in) {
-        List<Byte> bytes = VarInt.encode(in.length);
-        bytes.addAll(Bytes.asList(in));
-        return Bytes.toArray(bytes);
-    }
 
 
     public T get() {

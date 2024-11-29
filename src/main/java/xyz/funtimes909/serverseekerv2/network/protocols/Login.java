@@ -7,12 +7,16 @@ import com.google.gson.JsonParser;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
-import xyz.funtimes909.serverseekerv2.types.IncomingPacketType;
-import xyz.funtimes909.serverseekerv2.types.protocols.Compression;
-import xyz.funtimes909.serverseekerv2.types.protocols.Disconnect;
-import xyz.funtimes909.serverseekerv2.types.protocols.Encryption;
-import xyz.funtimes909.serverseekerv2.types.protocols.LoginSuccess;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.LoginPacketType;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Compression;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Disconnect;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Encryption;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.LoginSuccess;
+import xyz.funtimes909.serverseekerv2.types.varlen.AbstractVarType;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarUUID;
+import xyz.funtimes909.serverseekerv2.util.PacketFormatter;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -29,7 +33,7 @@ public class Login {
     // The default username & uuid to attempt to login to servers if none is given
     public static final String username = "Herobrine";
     public static final UUID uuid = UUID.fromString("f84c6a79-0a4e-45e0-879b-cd49ebd4c4e2");
-    public static final List<Byte> REQUEST = getLoginStart(username, uuid);
+    public static final List<Byte> REQUEST = PacketFormatter.encodePacket(0, username, uuid);
 
     // NOTE: This is only for testing. Once deployed, the BC provider will be added in the main function
     static {
@@ -91,14 +95,19 @@ public class Login {
     }
     public void login(int protocol, String username, UUID uuid, String accessToken)
             throws InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchPaddingException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
-        login(protocol, getLoginStart(username, uuid), accessToken);
+        login(protocol, PacketFormatter.encodePacket(0, username, uuid), accessToken);
     }
     public void login(int protocol, List<Byte> loginRequest, String accessToken)
             throws IllegalBlockSizeException, IOException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException
     {
         // The login request starts off with the Handshake and Login Start
         // TODO: Add a way to give the IP & Port used for the handshake protocol
-        List<Byte> request = Handshake.getHandshake(protocol, "", (short) 0, (byte) 2);
+        List<Byte> request = PacketFormatter.encodePacket(0, // Handshake Protocol
+                protocol, // Minecraft Protocol Version
+                "", // Server Address
+                (short) 0, // Port
+                (byte) 2 // Next State (1: status, 2: login, 3: transfer)
+        );
         request.addAll(loginRequest);
         // Write the things to the server
         this.oStream.write(Bytes.toArray(request));
@@ -114,7 +123,7 @@ public class Login {
             else
                 packet = PacketUtils.readEncryptedStream(this.iStream, decryptCipher, compressionThreshold).getFirst();
 
-            switch (IncomingPacketType.getType(VarInt.decode(packet, 0).get())) {
+            switch (LoginPacketType.getType(VarInt.decode(packet, 0).get())) {
                 case DISCONNECT -> {
                     System.out.println(Arrays.toString(packet));
                     Disconnect disconnectPacket = Disconnect.decode(packet);
@@ -176,31 +185,6 @@ public class Login {
             }
         }
     }
-
-    public static List<Byte> getLoginStart(String name, UUID id) {
-        List<Byte> arr = new ArrayList<>(List.of(
-                // Packet ID
-                (byte) 0
-        ));
-
-        // Username
-        if (name.isEmpty())
-            arr.add((byte) 0);
-        else {
-            arr.addAll(VarInt.encode(name.length()));
-            arr.addAll(Bytes.asList(name.getBytes(StandardCharsets.UTF_8)));
-        }
-
-        // UUID
-        arr.addAll(Bytes.asList(Longs.toByteArray(id.getMostSignificantBits())));
-        arr.addAll(Bytes.asList(Longs.toByteArray(id.getLeastSignificantBits())));
-
-        // Finally start it with the size
-        arr.addAll(0, VarInt.encode(arr.size()));
-
-        return arr;
-    }
-
 
 
     public static void main(String[] args) {

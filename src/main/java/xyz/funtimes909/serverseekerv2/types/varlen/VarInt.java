@@ -6,8 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VarInt extends AbstractVarType<Integer, VarInt> {
+    public VarInt() { super(null, 0); }
     protected VarInt(Integer value, int size) {
         super(value, size);
+    }
+
+    @Override
+    public Class<?> getType() {
+        return Integer.class;
     }
 
 
@@ -56,5 +62,14 @@ public class VarInt extends AbstractVarType<Integer, VarInt> {
             v >>= 7;
         } while (v != 0);
         return res;
+    }
+
+    @Override
+    public List<Byte> encodeSelf() {
+        return encode(this.value);
+    }
+    @Override
+    public List<Byte> encodeValue(Object in) {
+        return encode((int) in);
     }
 }

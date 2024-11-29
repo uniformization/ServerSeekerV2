@@ -1,8 +1,8 @@
-package xyz.funtimes909.serverseekerv2.types.protocols;
+package xyz.funtimes909.serverseekerv2.types.protocols.login.incoming;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import xyz.funtimes909.serverseekerv2.types.AbstractProtocol;
+import xyz.funtimes909.serverseekerv2.types.protocols.AbstractProtocol;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
 
 public class Disconnect implements AbstractProtocol<Disconnect> {

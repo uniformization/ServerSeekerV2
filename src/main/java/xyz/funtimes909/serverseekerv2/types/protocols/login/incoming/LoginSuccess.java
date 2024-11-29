@@ -1,6 +1,6 @@
-package xyz.funtimes909.serverseekerv2.types.protocols;
+package xyz.funtimes909.serverseekerv2.types.protocols.login.incoming;
 
-import xyz.funtimes909.serverseekerv2.types.AbstractProtocol;
+import xyz.funtimes909.serverseekerv2.types.protocols.AbstractProtocol;
 
 public class LoginSuccess implements AbstractProtocol<LoginSuccess> {
     public static final AbstractProtocol<?> INSTANCE = new LoginSuccess();

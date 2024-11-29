@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+// NOTE: UUID's aren't variable length encoded. It's just placed like this to make it easier to deal with
 public class VarUUID extends AbstractVarType<UUID, VarUUID> {
     public VarUUID() {
         super(null, 16);

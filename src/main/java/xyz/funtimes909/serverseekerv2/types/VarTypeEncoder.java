@@ -1,4 +1,6 @@
-package xyz.funtimes909.serverseekerv2.types.varlen;
+package xyz.funtimes909.serverseekerv2.types;
+
+import xyz.funtimes909.serverseekerv2.types.varlen.*;
 
 import java.util.List;
 

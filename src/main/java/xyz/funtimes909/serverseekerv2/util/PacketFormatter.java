@@ -1,9 +1,8 @@
 package xyz.funtimes909.serverseekerv2.util;
 
 import com.google.common.primitives.Bytes;
-import xyz.funtimes909.serverseekerv2.types.varlen.AbstractVarType;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarTypeEncoder;
+import xyz.funtimes909.serverseekerv2.types.VarTypeEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +32,18 @@ public class PacketFormatter {
                 }
             }
 
+            // Otherwise, we attempt to encode it depending on it's class
             Class<?> objClass = obj.getClass();
-            if (objClass.equals(Byte.class)) {
+
+            if (objClass.equals(Boolean.class)) { // Bool
+                arr.add((byte) ((boolean) obj? 0x01: 0x00));
+                continue;
+            }
+            if (objClass.equals(Byte.class)) { // Byte
                 arr.add((byte) obj);
                 continue;
             }
-            if (objClass.equals(Short.class)) {
+            if (objClass.equals(Short.class)) { // Short
                 arr.add((byte) (((short) obj) >> 8));
                 arr.add((byte) ((short) obj));
                 continue;

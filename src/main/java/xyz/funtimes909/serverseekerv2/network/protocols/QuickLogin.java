@@ -46,11 +46,18 @@ public class QuickLogin {
                     // Disconnect
                     case 0: return LoginAttempt.ONLY_WHITELIST;
                     // Encryption
-                    case 1: return
-                            // The final byte (bool) represents weather it's in online or offline mode (client auth?)
-                            packet[packet.length - 1] == 1?
-                            LoginAttempt.ONLINE:
-                            LoginAttempt.OFFLINE;
+                    case 1: {
+                        if (protocol >= 766) {
+                            // In 1.20.5 they allowed having encryption and online status to be separate things
+                            return
+                                    // The final byte (bool) represents weather it's in online or offline mode (client auth?)
+                                    packet[packet.length - 1] == 1 ?
+                                            LoginAttempt.ONLINE :
+                                            LoginAttempt.OFFLINE;
+                        }
+                        // Else it is expected that encryption means the server is in online mode
+                        return LoginAttempt.ONLINE;
+                    }
                     // Success
                     case 2: return LoginAttempt.INSECURE;
                     // Compression

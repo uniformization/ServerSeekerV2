@@ -1,9 +1,6 @@
 package xyz.funtimes909.serverseekerv2.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 import xyz.funtimes909.serverseekerv2.builders.Mod;
@@ -24,7 +21,8 @@ import java.util.concurrent.Semaphore;
 
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-    private static final Semaphore lock = new Semaphore(1000);
+    private static final Semaphore lock = new Semaphore(100);
+    private static final StringBuilder motd = new StringBuilder();
 
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);
@@ -60,7 +58,6 @@ public class ScanManager {
 
             // Define variables as wrappers to allow null values
             String version = null;
-            String motd = null;
             String icon = null;
             String asn = null;
             String country = null;
@@ -116,12 +113,10 @@ public class ScanManager {
 
             // Description can be either an object or a string
             if (parsedJson.has("description")) {
-                if (parsedJson.get("description").isJsonPrimitive()) {
-                    motd = parsedJson.get("description").getAsString();
-                } else if (parsedJson.get("description").isJsonObject()) {
-                    if (parsedJson.get("description").getAsJsonObject().has("motd")) {
-                        motd = parsedJson.get("description").getAsJsonObject().get("text").getAsString();
-                    }
+                if (parsedJson.get("description").isJsonObject()) {
+                    parseObject(parsedJson.get("description").getAsJsonObject(), 10);
+                } else {
+                    motd.append(parsedJson.get("description").getAsString());
                 }
             }
 
@@ -189,7 +184,7 @@ public class ScanManager {
                     .setVersion(version)
                     .setProtocol(protocol)
                     .setFmlNetworkVersion(fmlNetworkVersion)
-                    .setMotd(motd)
+                    .setMotd(motd.toString())
                     .setIcon(icon)
                     .setTimesSeen(1)
                     .setPreventsReports(preventsChatReports)
@@ -201,7 +196,34 @@ public class ScanManager {
                     .setMods(modsList)
                     .build();
 
+            motd.replace(0, motd.length(), "");
             Database.updateServer(server);
         } catch (JsonSyntaxException | IllegalStateException ignored) {}
+    }
+
+    private static void parseObject(JsonObject object, int limit) {
+        if (limit == 0) return;
+        for (Map.Entry<String, JsonElement> entry : object.asMap().entrySet()) {
+            if (entry.getKey().equals("text")) {
+                motd.append(entry.getValue().getAsString());
+            } else if (entry.getValue().isJsonArray()) {
+                parseArray(entry.getValue().getAsJsonArray(), limit - 1);
+            } else if (entry.getValue().isJsonObject()) {
+                parseObject(entry.getValue().getAsJsonObject(), limit - 1);
+            }
+        }
+    }
+
+    private static void parseArray(JsonArray array, int limit) {
+        if (limit == 0) return;
+        for (JsonElement jsonElement : array) {
+            if (jsonElement.isJsonPrimitive()) {
+                motd.append(jsonElement.getAsString());
+            } else if (jsonElement.isJsonArray()) {
+                parseArray(jsonElement.getAsJsonArray(), limit - 1);
+            } else if (jsonElement.isJsonObject()) {
+                parseObject(jsonElement.getAsJsonObject(), limit - 1);
+            }
+        }
     }
 }

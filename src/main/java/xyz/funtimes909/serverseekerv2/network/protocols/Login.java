@@ -125,7 +125,6 @@ public class Login {
 
             switch (LoginPacketType.getType(VarInt.decode(packet, 0).get())) {
                 case DISCONNECT -> {
-                    System.out.println(Arrays.toString(packet));
                     Disconnect disconnectPacket = Disconnect.decode(packet);
                     System.out.println(disconnectPacket.reason);
                     break loop;

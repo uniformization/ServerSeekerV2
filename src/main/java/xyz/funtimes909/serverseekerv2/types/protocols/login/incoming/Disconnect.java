@@ -19,8 +19,19 @@ public class Disconnect implements AbstractProtocol<Disconnect> {
 
 
     public static Disconnect decode(byte[] in) {
-        return new Disconnect(
-                JsonParser.parseString(VarString.decode(in, 1).get()).getAsJsonObject()
-        );
+        String reason = VarString.decode(in, 1).get();
+        try {
+            return new Disconnect(
+                    JsonParser.parseString(reason).getAsJsonObject()
+            );
+        } catch (Exception ignored) {
+            JsonObject json = new JsonObject();
+            // TODO: Could doing it this way cause issues down the line?
+            // FIXME: Find a better way to do it
+            json.addProperty("text", reason);
+            return new Disconnect(
+                    json
+            );
+        }
     }
 }

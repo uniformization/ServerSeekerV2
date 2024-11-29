@@ -13,10 +13,7 @@ import xyz.funtimes909.serverseekerv2.network.protocols.QuickLogin;
 import xyz.funtimes909.serverseekerv2.types.LoginAttempt;
 
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -24,7 +21,6 @@ import java.util.concurrent.Semaphore;
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private static final Semaphore lock = new Semaphore(100);
-    private static final StringBuilder motd = new StringBuilder();
 
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);
@@ -42,9 +38,9 @@ public class ScanManager {
                         String json = Handshake.ping(so);
                         parsedJson = JsonParser.parseString(json).getAsJsonObject();
                     }
-                    if (parsedJson == null)
-                        return;
+                    if (parsedJson == null) return;
 
+                    // Servers close connection after handshake, we need to make a new socket
                     LoginAttempt loginAttempt = LoginAttempt.UNKNOWN;
                     try (Socket so = Connect.connect(ip, port)) {
                         loginAttempt = QuickLogin.quickLogin(
@@ -55,12 +51,13 @@ public class ScanManager {
                     } catch (Exception ignored) { } // Even if the login method failed, still log the rest of the info
 
                     buildServer(server, parsedJson, loginAttempt);
-                    if (!MasscanUtils.masscanRunning)
+                    if (!MasscanUtils.masscanRunning) {
                         Main.logger.debug("Added {} to the database! {} Remaining servers!", ip, count[0]);
+                    }
                 } catch (Exception ignored) {
                 } finally {
-                    count[0] = count[0] - 1;
                     lock.release();
+                    count[0] = count[0] - 1;
                 }
             };
             lock.acquireUninterruptibly();
@@ -72,6 +69,7 @@ public class ScanManager {
         try {
             // Define variables as wrappers to allow null values
             String version = null;
+            StringBuilder motd = new StringBuilder();
             String icon = null;
             String asn = null;
             String country = null;
@@ -127,7 +125,7 @@ public class ScanManager {
             // Description can be either an object or a string
             if (parsedJson.has("description")) {
                 if (parsedJson.get("description").isJsonObject()) {
-                    parseObject(parsedJson.get("description").getAsJsonObject(), 10);
+                    parseMOTD(parsedJson.get("description").getAsJsonObject(), 10, motd);
                 } else {
                     motd.append(parsedJson.get("description").getAsString());
                 }
@@ -207,33 +205,35 @@ public class ScanManager {
                     .setMods(modsList)
                     .build();
 
-            motd.replace(0, motd.length(), "");
             Database.updateServer(server);
-        } catch (JsonSyntaxException | IllegalStateException ignored) {}
-    }
-
-    private static void parseObject(JsonObject object, int limit) {
-        if (limit == 0) return;
-        for (Map.Entry<String, JsonElement> entry : object.asMap().entrySet()) {
-            if (entry.getKey().equals("text")) {
-                motd.append(entry.getValue().getAsString());
-            } else if (entry.getValue().isJsonArray()) {
-                parseArray(entry.getValue().getAsJsonArray(), limit - 1);
-            } else if (entry.getValue().isJsonObject()) {
-                parseObject(entry.getValue().getAsJsonObject(), limit - 1);
-            }
+        } catch (JsonSyntaxException | IllegalStateException e) {
+            e.printStackTrace();
         }
     }
 
-    private static void parseArray(JsonArray array, int limit) {
+    private static void parseMOTD(JsonElement element, int limit, StringBuilder motd) {
         if (limit == 0) return;
-        for (JsonElement jsonElement : array) {
-            if (jsonElement.isJsonPrimitive()) {
-                motd.append(jsonElement.getAsString());
-            } else if (jsonElement.isJsonArray()) {
-                parseArray(jsonElement.getAsJsonArray(), limit - 1);
-            } else if (jsonElement.isJsonObject()) {
-                parseObject(jsonElement.getAsJsonObject(), limit - 1);
+
+        if (element.isJsonObject()) {
+            Map<String, JsonElement> map = element.getAsJsonObject().asMap();
+
+            if (map.containsKey("text")) {
+                if (map.containsKey("color")) {
+                    motd.append('§').append(AnsiCodes.codes.get(map.get("color").getAsString()).c);
+                }
+                motd.append(map.get("text").getAsString());
+            }
+
+            if (map.containsKey("extra")) {
+                parseMOTD(map.get("extra"), limit, motd);
+            }
+        } else {
+            for (JsonElement jsonElement : element.getAsJsonArray()) {
+                if (jsonElement.isJsonPrimitive()) {
+                    motd.append(jsonElement.getAsString());
+                } else {
+                    parseMOTD(jsonElement, limit, motd);
+                }
             }
         }
     }

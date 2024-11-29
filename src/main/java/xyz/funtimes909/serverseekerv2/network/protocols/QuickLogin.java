@@ -7,6 +7,7 @@ import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
 import xyz.funtimes909.serverseekerv2.types.LoginAttempt;
 import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Compression;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 import xyz.funtimes909.serverseekerv2.util.PacketFormatter;
 
 import java.io.IOException;
@@ -16,6 +17,18 @@ import java.net.Socket;
 import java.util.List;
 
 public class QuickLogin {
+    private static final List<Byte> loginPacketSuffix;
+    static {
+        List<Byte> ba = PacketFormatter.encode(
+                "", // Server Address
+                (short) 0, // Port
+                (byte) 2 // Next State (1: status, 2: login, 3: transfer)
+        );
+        // Login Request
+        ba.addAll(Login.REQUEST);
+        loginPacketSuffix = ba;
+    }
+
     /** A really rudimentary login method that can check some basic stats about the server */
     public static LoginAttempt quickLogin(Socket so, int protocol) {
         try (
@@ -23,13 +36,10 @@ public class QuickLogin {
                 InputStream in = so.getInputStream();
         ) {
             // The login request starts off with the Handshake and Login Start
-            List<Byte> request = PacketFormatter.encodePacket(0, // Handshake Protocol
-                    protocol, // Minecraft Protocol Version
-                    "", // Server Address
-                    (short) 0, // Port
-                    (byte) 2 // Next State (1: status, 2: login, 3: transfer)
-            );
-            request.addAll(Login.REQUEST);
+            List<Byte> request = VarInt.encode(protocol); // Minecraft Protocol Version
+            request.addAll(loginPacketSuffix); // The rest of the packet
+            request.addFirst((byte) 0); // Protocol ID
+            request.addAll(0, VarInt.encode(request.size() - Login.REQUEST.size())); // Rest of the packet
             // Write the things to the server
             out.write(Bytes.toArray(request));
 
@@ -61,7 +71,7 @@ public class QuickLogin {
                     // Success
                     case 2: return LoginAttempt.INSECURE;
                     // Compression
-                    case 3: compressionThreshold = Compression.decode(packet).threshold;
+                    case 3: compressionThreshold = VarInt.decode(packet, 1).get();
                 }
             }
         } catch (Exception ignored) { }

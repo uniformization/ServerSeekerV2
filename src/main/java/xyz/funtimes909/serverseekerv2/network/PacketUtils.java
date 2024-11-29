@@ -15,6 +15,26 @@ import java.util.List;
 import java.util.zip.InflaterOutputStream;
 
 public class PacketUtils {
+    public static byte[] decompressPacket(byte[] packet, int compressionThreshold) throws IOException {
+        if (compressionThreshold == -1) // If it isn't enabled
+            return packet;
+
+        // Then see how large it would be
+        VarInt dataSize = VarInt.decode(packet, 0);
+        byte[] newPacket = Arrays.copyOfRange(packet, dataSize.getSize(), packet.length);
+        // If the packet is too small, then you don't need to decompress
+        if (dataSize.get() < compressionThreshold)
+            return newPacket;
+
+        // Now we try to de-compress
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (OutputStream ios = new InflaterOutputStream(os)) {
+            ios.write(newPacket);
+        }
+        return os.toByteArray();
+    }
+
+
     public static byte[] readStream(InputStream io) throws IOException {
         return readStream(io, -1);
     }
@@ -66,25 +86,5 @@ public class PacketUtils {
         }
 
         return result;
-    }
-
-
-    public static byte[] decompressPacket(byte[] packet, int compressionThreshold) throws IOException {
-        if (compressionThreshold == -1) // If it isn't enabled
-            return packet;
-
-        // Then see how large it would be
-        VarInt dataSize = VarInt.decode(packet, 0);
-        byte[] newPacket = Arrays.copyOfRange(packet, dataSize.getSize(), packet.length);
-        // If the packet is too small, then you don't need to decompress
-        if (dataSize.get() < compressionThreshold)
-            return newPacket;
-
-        // Now we try to de-compress
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try (OutputStream ios = new InflaterOutputStream(os)) {
-            ios.write(newPacket);
-        }
-        return os.toByteArray();
     }
 }

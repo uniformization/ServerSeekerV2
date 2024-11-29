@@ -114,7 +114,7 @@ public class ScanManager {
             // Description can be either an object or a string
             if (parsedJson.has("description")) {
                 if (parsedJson.get("description").isJsonObject()) {
-                    parseObject(parsedJson.get("description").getAsJsonObject());
+                    parseObject(parsedJson.get("description").getAsJsonObject(), 10);
                 } else {
                     motd.append(parsedJson.get("description").getAsString());
                 }
@@ -201,26 +201,28 @@ public class ScanManager {
         } catch (JsonSyntaxException | IllegalStateException ignored) {}
     }
 
-    private static void parseObject(JsonObject object) {
+    private static void parseObject(JsonObject object, int limit) {
+        if (limit == 0) return;
         for (Map.Entry<String, JsonElement> entry : object.asMap().entrySet()) {
             if (entry.getKey().equals("text")) {
                 motd.append(entry.getValue().getAsString());
             } else if (entry.getValue().isJsonArray()) {
-                parseArray(entry.getValue().getAsJsonArray());
+                parseArray(entry.getValue().getAsJsonArray(), limit - 1);
             } else if (entry.getValue().isJsonObject()) {
-                parseObject(entry.getValue().getAsJsonObject());
+                parseObject(entry.getValue().getAsJsonObject(), limit - 1);
             }
         }
     }
 
-    private static void parseArray(JsonArray array) {
+    private static void parseArray(JsonArray array, int limit) {
+        if (limit == 0) return;
         for (JsonElement jsonElement : array) {
             if (jsonElement.isJsonPrimitive()) {
                 motd.append(jsonElement.getAsString());
             } else if (jsonElement.isJsonArray()) {
-                parseArray(jsonElement.getAsJsonArray());
+                parseArray(jsonElement.getAsJsonArray(), limit - 1);
             } else if (jsonElement.isJsonObject()) {
-                parseObject(jsonElement.getAsJsonObject());
+                parseObject(jsonElement.getAsJsonObject(), limit - 1);
             }
         }
     }

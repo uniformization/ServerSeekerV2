@@ -9,6 +9,8 @@ import xyz.funtimes909.serverseekerv2.builders.Server;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.HttpUtils;
 import xyz.funtimes909.serverseekerv2.network.protocols.Handshake;
+import xyz.funtimes909.serverseekerv2.network.protocols.QuickLogin;
+import xyz.funtimes909.serverseekerv2.types.LoginAttempt;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -32,15 +34,29 @@ public class ScanManager {
         for (Masscan server : serverList) {
             Runnable task = () -> {
                 try {
-                    Socket connection = Connect.connect(server.ip(), server.ports().getFirst().port());
+                    String ip = server.ip();
+                    short port = server.ports().getFirst().port();
 
-                    if (connection == null) return;
-                    String json = Handshake.ping(connection);
-                    connection.close();
+                    JsonObject parsedJson;
+                    try (Socket so = Connect.connect(ip, port)) {
+                        String json = Handshake.ping(so);
+                        parsedJson = JsonParser.parseString(json).getAsJsonObject();
+                    }
+                    if (parsedJson == null)
+                        return;
 
-                    if (json == null) return;
-                    buildServer(json, server);
-                    if (!MasscanUtils.masscanRunning) Main.logger.debug("Added {} to the database! {} Remaining servers!", server.ip(), count[0]);
+                    LoginAttempt loginAttempt = LoginAttempt.UNKNOWN;
+                    try (Socket so = Connect.connect(ip, port)) {
+                        loginAttempt = QuickLogin.quickLogin(
+                                so,
+                                // Get the protocol version of the server from the handshake we did with it
+                                parsedJson.get("version").getAsJsonObject().get("protocol").getAsInt()
+                        );
+                    } catch (Exception ignored) { } // Even if the login method failed, still log the rest of the info
+
+                    buildServer(server, parsedJson, loginAttempt);
+                    if (!MasscanUtils.masscanRunning)
+                        Main.logger.debug("Added {} to the database! {} Remaining servers!", ip, count[0]);
                 } catch (Exception ignored) {
                 } finally {
                     count[0] = count[0] - 1;
@@ -52,10 +68,8 @@ public class ScanManager {
         }
     }
 
-    public static void buildServer(String json, Masscan masscan) {
+    public static void buildServer(Masscan masscan, JsonObject parsedJson, LoginAttempt loginAttempt) {
         try {
-            JsonObject parsedJson = JsonParser.parseString(json).getAsJsonObject();
-
             // Define variables as wrappers to allow null values
             String version = null;
             String icon = null;
@@ -65,7 +79,6 @@ public class ScanManager {
             String organization = null;
             Boolean preventsChatReports = null;
             Boolean enforcesSecureChat = null;
-            Boolean cracked = null;
             Integer protocol = null;
             Integer fmlNetworkVersion = null;
             Integer maxPlayers = null;
@@ -155,9 +168,6 @@ public class ScanManager {
                             // Skip building player if uuid is null, has spaces in the name, or has no name
                             if (uuid.equals("00000000-0000-0000-0000-000000000000") || name.contains(" ") || name.isBlank() && Main.ignoreBots) continue;
 
-                            // Offline mode servers use v3 UUID's for players, while regular servers use v4, this is a really easy way to check if a server is offline mode
-                            if (UUID.fromString(uuid).version() == 3) cracked = true;
-
                             for (Map.Entry<String, String> trackedPlayer : PlayerTracking.playerTracker.entrySet()) {
                                 if (trackedPlayer.getKey().equalsIgnoreCase(name) && UUID.fromString(uuid).version() == 4) {
                                     HttpUtils.sendWebhook(trackedPlayer.getValue(), trackedPlayer.getKey(), address);
@@ -189,7 +199,8 @@ public class ScanManager {
                     .setTimesSeen(1)
                     .setPreventsReports(preventsChatReports)
                     .setEnforceSecure(enforcesSecureChat)
-                    .setCracked(cracked)
+                    .setCracked(loginAttempt.online)
+                    .setWhitelist(loginAttempt.whitelist)
                     .setMaxPlayers(maxPlayers)
                     .setOnlinePlayers(onlinePlayers)
                     .setPlayers(playerList)

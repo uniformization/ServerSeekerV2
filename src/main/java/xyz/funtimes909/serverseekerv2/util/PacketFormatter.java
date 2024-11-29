@@ -24,29 +24,29 @@ public class PacketFormatter {
         List<Byte> arr = new ArrayList<>();
 
         for (Object obj: objs) {
+            Class<?> objClass = obj.getClass();
+            { // Attempt to encode it depending on it's class
+                if (objClass.equals(Boolean.class)) { // Bool
+                    arr.add((byte) ((boolean) obj ? 0x01 : 0x00));
+                    continue;
+                }
+                if (objClass.equals(Byte.class)) { // Byte
+                    arr.add((byte) obj);
+                    continue;
+                }
+                if (objClass.equals(Short.class)) { // Short
+                    arr.add((byte) (((short) obj) >> 8));
+                    arr.add((byte) ((short) obj));
+                    continue;
+                }
+            }
+
             { // First try to see if there is a VarType for it
                 List<Byte> val = VarTypeEncoder.encode(obj);
                 if (val != null) {
                     arr.addAll(val);
                     continue;
                 }
-            }
-
-            // Otherwise, we attempt to encode it depending on it's class
-            Class<?> objClass = obj.getClass();
-
-            if (objClass.equals(Boolean.class)) { // Bool
-                arr.add((byte) ((boolean) obj? 0x01: 0x00));
-                continue;
-            }
-            if (objClass.equals(Byte.class)) { // Byte
-                arr.add((byte) obj);
-                continue;
-            }
-            if (objClass.equals(Short.class)) { // Short
-                arr.add((byte) (((short) obj) >> 8));
-                arr.add((byte) ((short) obj));
-                continue;
             }
 
             throw new RuntimeException("Unable to encode ["+ obj +"] due to its class ["+ objClass +"] not being a recognised type.");

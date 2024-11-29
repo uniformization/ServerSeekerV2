@@ -8,7 +8,7 @@ import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
 public class Disconnect implements AbstractProtocol<Disconnect> {
     public static final AbstractProtocol<?> INSTANCE = new Disconnect();
     @Override
-    public int PROTOCOL() { return 0; }
+    public final int PROTOCOL() { return 0; }
 
     public JsonObject reason = new JsonObject();
 

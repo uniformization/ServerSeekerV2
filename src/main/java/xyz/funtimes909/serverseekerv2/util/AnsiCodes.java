@@ -6,7 +6,7 @@ public enum AnsiCodes {
     BLACK('0', "black"),
     DARK_BLUE('1', "dark_blue"),
     DARK_GREEN('2', "dark_green"),
-    DARK_AQUA('3', "dark_AQUA"),
+    DARK_AQUA('3', "dark_aqua"),
     DARK_RED('4', "dark_red"),
     PURPLE('5', "dark_purple"),
     GOLD('6', "gold"),

@@ -164,7 +164,7 @@ public class ScanManager {
                             String uuid = playerJson.getAsJsonObject().get("id").getAsString();
 
                             // Skip building player if uuid is null, has spaces in the name, or has no name
-                            if (uuid.equals("00000000-0000-0000-0000-000000000000") || name.contains(" ") || name.isBlank() && Main.ignoreBots) continue;
+                            if (name.contains(" ") || name.isBlank() && Main.ignoreBots) continue;
 
                             for (Map.Entry<String, String> trackedPlayer : PlayerTracking.playerTracker.entrySet()) {
                                 if (trackedPlayer.getKey().equalsIgnoreCase(name) && UUID.fromString(uuid).version() == 4) {

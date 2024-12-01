@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import xyz.funtimes909.serverseekerv2.builders.Config;
 import xyz.funtimes909.serverseekerv2.util.*;
 
-import java.io.File;
 import java.security.Security;
 
 public class Main {

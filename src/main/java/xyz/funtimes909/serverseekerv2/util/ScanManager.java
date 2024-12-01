@@ -197,7 +197,7 @@ public class ScanManager {
                     .setTimesSeen(1)
                     .setPreventsReports(preventsChatReports)
                     .setEnforceSecure(enforcesSecureChat)
-                    .setCracked(loginAttempt.online)
+                    .setCracked(!loginAttempt.online)
                     .setWhitelist(loginAttempt.whitelist)
                     .setMaxPlayers(maxPlayers)
                     .setOnlinePlayers(onlinePlayers)

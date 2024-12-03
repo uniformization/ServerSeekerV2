@@ -7,7 +7,6 @@ import xyz.funtimes909.serverseekerv2.builders.Player;
 import xyz.funtimes909.serverseekerv2.builders.Server;
 
 import java.sql.*;
-import java.util.List;
 
 public class Database{
     private static final BasicDataSource dataSource = new BasicDataSource();

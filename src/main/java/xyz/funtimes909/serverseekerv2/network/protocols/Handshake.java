@@ -1,18 +1,15 @@
 package xyz.funtimes909.serverseekerv2.network.protocols;
 
+import com.google.common.primitives.Bytes;
+import xyz.funtimes909.serverseekerv2.network.Connect;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
+import xyz.funtimes909.serverseekerv2.util.PacketFormatter;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-
-import xyz.funtimes909.serverseekerv2.network.Connect;
-import xyz.funtimes909.serverseekerv2.network.PacketUtils;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
-import com.google.common.primitives.Bytes;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
-import xyz.funtimes909.serverseekerv2.util.PacketFormatter;
 
 
 public class Handshake {

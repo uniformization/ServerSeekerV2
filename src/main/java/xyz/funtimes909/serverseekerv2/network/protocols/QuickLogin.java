@@ -6,11 +6,9 @@ import com.google.gson.JsonParser;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
 import xyz.funtimes909.serverseekerv2.types.LoginAttempt;
-import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Compression;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 import xyz.funtimes909.serverseekerv2.util.PacketFormatter;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;

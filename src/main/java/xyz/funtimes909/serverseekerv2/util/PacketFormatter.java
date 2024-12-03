@@ -1,8 +1,8 @@
 package xyz.funtimes909.serverseekerv2.util;
 
 import com.google.common.primitives.Bytes;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 import xyz.funtimes909.serverseekerv2.types.VarTypeEncoder;
+import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
 
 import java.util.ArrayList;
 import java.util.List;

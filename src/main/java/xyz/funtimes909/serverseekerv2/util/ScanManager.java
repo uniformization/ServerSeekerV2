@@ -1,6 +1,9 @@
 package xyz.funtimes909.serverseekerv2.util;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 import xyz.funtimes909.serverseekerv2.builders.Mod;
@@ -13,7 +16,10 @@ import xyz.funtimes909.serverseekerv2.network.protocols.QuickLogin;
 import xyz.funtimes909.serverseekerv2.types.LoginAttempt;
 
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;

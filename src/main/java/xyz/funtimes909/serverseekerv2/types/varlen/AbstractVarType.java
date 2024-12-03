@@ -1,7 +1,5 @@
 package xyz.funtimes909.serverseekerv2.types.varlen;
 
-import com.google.common.primitives.Bytes;
-
 import java.util.List;
 
 public abstract class AbstractVarType<T, S extends AbstractVarType<T, S>> {

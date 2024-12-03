@@ -2,7 +2,10 @@ package xyz.funtimes909.serverseekerv2.types.protocols.login;
 
 import xyz.funtimes909.serverseekerv2.types.protocols.AbstractProtocol;
 import xyz.funtimes909.serverseekerv2.types.protocols.Error;
-import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.*;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Compression;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Disconnect;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.Encryption;
+import xyz.funtimes909.serverseekerv2.types.protocols.login.incoming.LoginSuccess;
 
 public enum LoginPacketType {
     ERROR(Error.INSTANCE),

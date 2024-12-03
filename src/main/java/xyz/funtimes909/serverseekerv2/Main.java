@@ -46,14 +46,11 @@ public class Main {
         masscanOutput = config.getMasscanOutput();
 
         // Warn user about configs should some of them not exist
-        if (postgresUser.isBlank()) logger.warn("Warning! No postgres username specified. Attempting to use default username \"postgres\"");
-        if (postgresPassword.isBlank()) logger.warn("Warning! No postgres password specified. You should setup a password for your database");
         if (postgresUrl.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
         if (masscanConf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");
         if (!MasscanUtils.checkInstalled()) throw new RuntimeException("Error! masscan not found! Try installing masscan and adding it to your $PATH");
-
-        // Init database connection pool and create tables if they don't exist
-        Database.init();
+        if (postgresUser.isBlank()) logger.warn("Warning! No postgres username specified. Attempting to use default username \"postgres\"");
+        if (postgresPassword.isBlank()) logger.warn("Warning! No postgres password specified. You should setup a password for your database");
 
         // Add the bouncy castle provider
         Security.addProvider(new BouncyCastleProvider());

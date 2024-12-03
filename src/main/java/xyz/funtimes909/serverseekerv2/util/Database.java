@@ -11,7 +11,7 @@ import java.sql.*;
 public class Database{
     private static final BasicDataSource dataSource = new BasicDataSource();
 
-    public static void init() {
+    static {
         dataSource.setUrl("jdbc:postgresql://" + Main.postgresUrl);
         dataSource.setPassword(Main.postgresPassword);
         dataSource.setUsername(Main.postgresUser);

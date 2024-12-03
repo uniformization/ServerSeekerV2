@@ -182,7 +182,7 @@ public class ScanManager {
                     .setFmlNetworkVersion(fmlNetworkVersion)
                     .setMotd(motd.toString())
                     .setTimesSeen(1)
-                    .setIcon(parsedJson.has("icon") ? parsedJson.get("icon").getAsString() : null)
+                    .setIcon(parsedJson.has("favicon") ? parsedJson.get("favicon").getAsString() : null)
                     .setPreventsReports(parsedJson.has("preventsChatReports") ? parsedJson.get("preventsChatReports").getAsBoolean() : null)
                     .setEnforceSecure(parsedJson.has("enforcesSecureChat") ? parsedJson.get("enforcesSecureChat").getAsBoolean() : null)
                     .setCracked(!loginAttempt.online)

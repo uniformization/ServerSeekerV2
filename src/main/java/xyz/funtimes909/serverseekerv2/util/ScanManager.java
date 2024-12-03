@@ -20,7 +20,7 @@ import java.util.concurrent.Semaphore;
 
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-    private static final Semaphore lock = new Semaphore(100);
+    private static final Semaphore lock = new Semaphore(2500);
 
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);

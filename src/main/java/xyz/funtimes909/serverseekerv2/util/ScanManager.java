@@ -70,13 +70,10 @@ public class ScanManager {
             // Define variables as wrappers to allow null values
             String version = null;
             StringBuilder motd = new StringBuilder();
-            String icon = null;
             String asn = null;
             String country = null;
             String reverseDns = null;
             String organization = null;
-            Boolean preventsChatReports = null;
-            Boolean enforcesSecureChat = null;
             Integer protocol = null;
             Integer fmlNetworkVersion = null;
             Integer maxPlayers = null;
@@ -92,7 +89,6 @@ public class ScanManager {
             // Country and ASN information
             if (Main.ipLookups) {
                 String primaryResponse = HttpUtils.run(address);
-
                 if (primaryResponse != null) {
                     JsonObject parsedPrimaryResponse = JsonParser.parseString(primaryResponse).getAsJsonObject();
                     if (parsedPrimaryResponse.has("reverse")) reverseDns = parsedPrimaryResponse.get("reverse").getAsString();
@@ -117,11 +113,6 @@ public class ScanManager {
                 protocol = parsedJson.get("version").getAsJsonObject().get("protocol").getAsInt();
             }
 
-            // Check for icon
-            if (parsedJson.has("favicon")) {
-                icon = parsedJson.get("favicon").getAsString();
-            }
-
             // Description can be either an object or a string
             if (parsedJson.has("description")) {
                 if (parsedJson.get("description").isJsonObject()) {
@@ -129,14 +120,6 @@ public class ScanManager {
                 } else {
                     motd.append(parsedJson.get("description").getAsString());
                 }
-            }
-
-            if (parsedJson.has("enforcesSecureChat")) {
-                enforcesSecureChat = parsedJson.get("enforcesSecureChat").getAsBoolean();
-            }
-
-            if (parsedJson.has("preventsChatReports")) {
-                preventsChatReports = parsedJson.get("preventsChatReports").getAsBoolean();
             }
 
             // Forge servers send back information about mods
@@ -173,8 +156,7 @@ public class ScanManager {
                                 }
                             }
 
-                            Player player = new Player(name, uuid, timestamp);
-                            playerList.add(player);
+                            playerList.add(new Player(name, uuid, timestamp));
                         }
                     }
                 }
@@ -193,10 +175,10 @@ public class ScanManager {
                     .setProtocol(protocol)
                     .setFmlNetworkVersion(fmlNetworkVersion)
                     .setMotd(motd.toString())
-                    .setIcon(icon)
                     .setTimesSeen(1)
-                    .setPreventsReports(preventsChatReports)
-                    .setEnforceSecure(enforcesSecureChat)
+                    .setIcon(parsedJson.has("icon") ? parsedJson.get("icon").getAsString() : null)
+                    .setPreventsReports(parsedJson.has("preventsChatReports") ? parsedJson.get("preventsChatReports").getAsBoolean() : null)
+                    .setEnforceSecure(parsedJson.has("enforcesSecureChat") ? parsedJson.get("enforcesSecureChat").getAsBoolean() : null)
                     .setCracked(!loginAttempt.online)
                     .setWhitelist(loginAttempt.whitelist)
                     .setMaxPlayers(maxPlayers)

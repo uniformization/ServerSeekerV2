@@ -1,11 +1,14 @@
 package xyz.funtimes909.serverseekerv2.builders;
 
+import xyz.funtimes909.serverseekerv2.types.ServerType;
+
 import java.util.List;
 
 public class Server {
     private final List<Player> players;
     private final List<Mod> mods;
     private final String version;
+    private final ServerType serverType;
     private final String motd;
     private final String icon;
     private final String country;
@@ -35,6 +38,10 @@ public class Server {
 
     public String getVersion() {
         return version;
+    }
+
+    public ServerType getType() {
+        return serverType;
     }
 
     public String getMotd() {
@@ -113,6 +120,7 @@ public class Server {
         this.players = builder.players;
         this.mods = builder.mods;
         this.version = builder.version;
+        this.serverType = builder.serverType;
         this.motd = builder.motd;
         this.icon = builder.icon;
         this.country = builder.country;
@@ -137,6 +145,7 @@ public class Server {
         private List<Player> players;
         private List<Mod> mods;
         private String version;
+        private ServerType serverType;
         private String motd;
         private String icon;
         private String country;
@@ -169,6 +178,11 @@ public class Server {
 
         public Builder setVersion(String version) {
             this.version = version;
+            return this;
+        }
+
+        public Builder setServerType(ServerType serverType) {
+            this.serverType = serverType;
             return this;
         }
 

@@ -54,10 +54,11 @@ public class Main {
 
         // Add the bouncy castle provider
         Security.addProvider(new BouncyCastleProvider());
+        Database.init();
 
         // TODO Make this not bad
         while (true) {
-            MasscanUtils.run();
+//            MasscanUtils.run();
             if (playerTracking) {
                 PlayerTracking.parseList("tracks.json");
                 logger.debug("Loading {} players from tracks.json", PlayerTracking.playerTracker.size());

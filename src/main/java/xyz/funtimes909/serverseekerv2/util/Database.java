@@ -15,8 +15,6 @@ public class Database{
         dataSource.setUrl("jdbc:postgresql://" + Main.postgresUrl);
         dataSource.setPassword(Main.postgresPassword);
         dataSource.setUsername(Main.postgresUser);
-
-        createIfNotExist();
     }
 
     public static Connection getConnection() {
@@ -27,14 +25,16 @@ public class Database{
         }
     }
 
-    public static void createIfNotExist() {
+    public static void init() {
         Main.logger.info("Attempting to create database tables...");
         try (Connection conn = getConnection()) {
             Statement tables = conn.createStatement();
+
             // Servers
             tables.addBatch("CREATE TABLE IF NOT EXISTS Servers (" +
                     "Address TEXT," +
                     "Port NUMERIC," +
+                    "Type TEXT," +
                     "FirstSeen INT," +
                     "LastSeen INT," +
                     "Country TEXT," +
@@ -96,6 +96,7 @@ public class Database{
             PreparedStatement insertServer = conn.prepareStatement("INSERT INTO Servers " +
                     "(Address," +
                     "Port," +
+                    "Type," +
                     "FirstSeen," +
                     "LastSeen," +
                     "Country," +
@@ -114,9 +115,10 @@ public class Database{
                     "Cracked," +
                     "MaxPlayers," +
                     "OnlinePlayers)" +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" +
                     "ON CONFLICT (Address, Port) DO UPDATE SET " +
                     "LastSeen = EXCLUDED.LastSeen," +
+                    "Type = EXCLUDED.Type," +
                     "Country = EXCLUDED.Country," +
                     "Asn = EXCLUDED.Asn," +
                     "ReverseDNS = EXCLUDED.ReverseDNS," +
@@ -137,24 +139,25 @@ public class Database{
             // Set most values as objects to insert a null if value doesn't exist
             insertServer.setString(1, server.getAddress());
             insertServer.setInt(2, server.getPort());
-            insertServer.setLong(3, server.getTimestamp());
+            insertServer.setString(3, server.getType().name());
             insertServer.setLong(4, server.getTimestamp());
-            insertServer.setString(5, server.getCountry());
-            insertServer.setString(6, server.getAsn());
-            insertServer.setString(7, server.getReverseDns());
-            insertServer.setString(8, server.getOrganization());
-            insertServer.setString(9, server.getVersion());
-            insertServer.setObject(10, server.getProtocol(), Types.INTEGER);
-            insertServer.setObject(11, server.getFmlNetworkVersion(), Types.INTEGER);
-            insertServer.setString(12, server.getMotd());
-            insertServer.setString(13, server.getIcon());
-            insertServer.setInt(14, server.getTimesSeen());
-            insertServer.setObject(15, server.getPreventsReports(), Types.BOOLEAN);
-            insertServer.setObject(16, server.getEnforceSecure(), Types.BOOLEAN);
-            insertServer.setObject(17, server.getWhitelist(), Types.BOOLEAN);
-            insertServer.setObject(18, server.getCracked(), Types.BOOLEAN);
-            insertServer.setObject(19, server.getMaxPlayers(), Types.INTEGER);
-            insertServer.setObject(20, server.getOnlinePlayers(), Types.INTEGER);
+            insertServer.setLong(5, server.getTimestamp());
+            insertServer.setString(6, server.getCountry());
+            insertServer.setString(7, server.getAsn());
+            insertServer.setString(8, server.getReverseDns());
+            insertServer.setString(9, server.getOrganization());
+            insertServer.setString(10, server.getVersion());
+            insertServer.setObject(11, server.getProtocol(), Types.INTEGER);
+            insertServer.setObject(12, server.getFmlNetworkVersion(), Types.INTEGER);
+            insertServer.setString(13, server.getMotd());
+            insertServer.setString(14, server.getIcon());
+            insertServer.setInt(15, server.getTimesSeen());
+            insertServer.setObject(16, server.getPreventsReports(), Types.BOOLEAN);
+            insertServer.setObject(17, server.getEnforceSecure(), Types.BOOLEAN);
+            insertServer.setObject(18, server.getWhitelist(), Types.BOOLEAN);
+            insertServer.setObject(19, server.getCracked(), Types.BOOLEAN);
+            insertServer.setObject(20, server.getMaxPlayers(), Types.INTEGER);
+            insertServer.setObject(21, server.getOnlinePlayers(), Types.INTEGER);
             insertServer.executeUpdate();
             insertServer.close();
 

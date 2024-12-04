@@ -14,6 +14,7 @@ import xyz.funtimes909.serverseekerv2.network.HttpUtils;
 import xyz.funtimes909.serverseekerv2.network.protocols.Handshake;
 import xyz.funtimes909.serverseekerv2.network.protocols.QuickLogin;
 import xyz.funtimes909.serverseekerv2.types.LoginAttempt;
+import xyz.funtimes909.serverseekerv2.types.ServerType;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -75,6 +76,7 @@ public class ScanManager {
         try {
             // Define variables as wrappers to allow null values
             String version = null;
+            ServerType type = ServerType.JAVA;
             StringBuilder motd = new StringBuilder();
             String asn = null;
             String country = null;
@@ -113,10 +115,25 @@ public class ScanManager {
                 }
             }
 
+            // Neoforge
+            if (parsedJson.has("isModded")) {
+                type = ServerType.NEOFORGE;
+            }
+
             // Minecraft server information
             if (parsedJson.has("version")) {
                 version = parsedJson.get("version").getAsJsonObject().get("name").getAsString();
                 protocol = parsedJson.get("version").getAsJsonObject().get("protocol").getAsInt();
+
+                if (version.startsWith("Paper")) {
+                    type = ServerType.PAPER;
+                } else if (version.startsWith("Spigot")) {
+                    type = ServerType.SPIGOT;
+                } else if (version.contains("thermos")) {
+                    type = ServerType.THERMOS;
+                } else if (version.startsWith("CraftBukkit")) {
+                    type = ServerType.BUKKIT;
+                }
             }
 
             // Description can be either an object or a string
@@ -131,6 +148,7 @@ public class ScanManager {
             // Forge servers send back information about mods
             if (parsedJson.has("forgeData")) {
                 fmlNetworkVersion = parsedJson.get("forgeData").getAsJsonObject().get("fmlNetworkVersion").getAsInt();
+                type = ServerType.LEXFORGE;
                 if (parsedJson.get("forgeData").getAsJsonObject().has("mods")) {
                     for (JsonElement modJson : parsedJson.get("forgeData").getAsJsonObject().get("mods").getAsJsonArray().asList()) {
                         String modId = modJson.getAsJsonObject().get("modId").getAsString();
@@ -168,10 +186,13 @@ public class ScanManager {
                 }
             }
 
+            System.out.println(type);
+
             // Build server
             Server server = new Server.Builder()
                     .setAddress(address)
                     .setPort(port)
+                    .setServerType(type)
                     .setTimestamp(timestamp)
                     .setAsn(asn)
                     .setCountry(country)
@@ -194,7 +215,7 @@ public class ScanManager {
                     .build();
 
             Database.updateServer(server);
-        } catch (JsonSyntaxException | IllegalStateException ignored) {}
+        } catch (Exception ignored) {}
     }
 
     private static void parseMOTD(JsonElement element, int limit, StringBuilder motd) {

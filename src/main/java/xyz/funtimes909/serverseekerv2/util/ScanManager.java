@@ -3,7 +3,6 @@ package xyz.funtimes909.serverseekerv2.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 import xyz.funtimes909.serverseekerv2.builders.Mod;
@@ -173,11 +172,13 @@ public class ScanManager {
                             // Skip building player if uuid is null, has spaces in the name, or has no name
                             if (name.contains(" ") || name.isBlank() && Main.ignoreBots) continue;
 
-                            for (Map.Entry<String, String> trackedPlayer : PlayerTracking.playerTracker.entrySet()) {
-                                if (trackedPlayer.getKey().equalsIgnoreCase(name) && UUID.fromString(uuid).version() == 4) {
-                                    HttpUtils.sendWebhook(trackedPlayer.getValue(), trackedPlayer.getKey(), address);
-                                    Main.logger.info("{} found in tracks.json, sending POST to webhook", trackedPlayer.getKey());
-                                }
+                            if (PlayerTracking.playerTracker.containsKey(name) && !loginAttempt.online) {
+                                HttpUtils.sendWebhook(
+                                        PlayerTracking.playerTracker.get(name),
+                                        name,
+                                        address
+                                );
+                                Main.logger.info("{} found in tracks.json, sending POST to webhook", name);
                             }
 
                             playerList.add(new Player(name, uuid, timestamp));

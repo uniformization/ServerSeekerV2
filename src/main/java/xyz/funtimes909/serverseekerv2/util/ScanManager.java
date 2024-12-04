@@ -185,7 +185,7 @@ public class ScanManager {
                     .setIcon(parsedJson.has("favicon") ? parsedJson.get("favicon").getAsString() : null)
                     .setPreventsReports(parsedJson.has("preventsChatReports") ? parsedJson.get("preventsChatReports").getAsBoolean() : null)
                     .setEnforceSecure(parsedJson.has("enforcesSecureChat") ? parsedJson.get("enforcesSecureChat").getAsBoolean() : null)
-                    .setCracked(!loginAttempt.online)
+                    .setCracked(loginAttempt.online == null? null: !loginAttempt.online) // Login attempt checking if online, and the database expecting is cracked, so it needs to be inverted if not null
                     .setWhitelist(loginAttempt.whitelist)
                     .setMaxPlayers(maxPlayers)
                     .setOnlinePlayers(onlinePlayers)

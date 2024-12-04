@@ -187,8 +187,6 @@ public class ScanManager {
                 }
             }
 
-            System.out.println(type);
-
             // Build server
             Server server = new Server.Builder()
                     .setAddress(address)

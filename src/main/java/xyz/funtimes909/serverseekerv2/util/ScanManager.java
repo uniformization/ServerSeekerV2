@@ -27,12 +27,13 @@ import java.util.concurrent.Semaphore;
 public class ScanManager {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private static final Semaphore lock = new Semaphore(2500);
+    public static int size;
 
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);
         if (serverList == null) return;
 
-        final int[] count = {serverList.size()};
+        size = serverList.size();
         for (Masscan server : serverList) {
             Runnable task = () -> {
                 try {
@@ -57,13 +58,10 @@ public class ScanManager {
                     } catch (Exception ignored) { } // Even if the login method failed, still log the rest of the info
 
                     buildServer(server, parsedJson, loginAttempt);
-                    if (!MasscanUtils.masscanRunning) {
-                        Main.logger.debug("Added {} to the database! {} Remaining servers!", ip, count[0]);
-                    }
                 } catch (Exception ignored) {
                 } finally {
                     lock.release();
-                    count[0] = count[0] - 1;
+                    size -= 1;
                 }
             };
             lock.acquireUninterruptibly();
@@ -149,12 +147,11 @@ public class ScanManager {
                 fmlNetworkVersion = parsedJson.get("forgeData").getAsJsonObject().get("fmlNetworkVersion").getAsInt();
                 type = ServerType.LEXFORGE;
                 if (parsedJson.get("forgeData").getAsJsonObject().has("mods")) {
-                    for (JsonElement modJson : parsedJson.get("forgeData").getAsJsonObject().get("mods").getAsJsonArray().asList()) {
-                        String modId = modJson.getAsJsonObject().get("modId").getAsString();
-                        String modmarker = modJson.getAsJsonObject().get("modmarker").getAsString();
+                    for (JsonElement mod : parsedJson.get("forgeData").getAsJsonObject().get("mods").getAsJsonArray().asList()) {
+                        String modId = mod.getAsJsonObject().get("modId").getAsString();
+                        String modmarker = mod.getAsJsonObject().get("modmarker").getAsString();
 
-                        Mod mod = new Mod(modId, modmarker);
-                        modsList.add(mod);
+                        modsList.add(new Mod(modId, modmarker));
                     }
                 }
             }

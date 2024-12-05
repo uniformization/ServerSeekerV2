@@ -205,6 +205,10 @@ public class Database{
                 updateMods.executeBatch();
                 updateMods.close();
             }
+
+            if (!MasscanUtils.masscanRunning) {
+                Main.logger.debug("Added {} to the database! {} Remaining servers!", server.getAddress(), ScanManager.size);
+            }
         } catch (SQLException e) {
             Main.logger.error("There was an error during a database transaction!", e);
         }

@@ -58,7 +58,7 @@ public class Main {
 
         // TODO Make this not bad
         while (true) {
-//            MasscanUtils.run();
+            MasscanUtils.run();
             if (playerTracking) {
                 PlayerTracking.parseList("tracks.json");
                 logger.debug("Loading {} players from tracks.json", PlayerTracking.playerTracker.size());

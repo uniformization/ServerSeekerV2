@@ -3,6 +3,9 @@ package xyz.funtimes909.serverseekerv2.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 import xyz.funtimes909.serverseekerv2.Main;
 import xyz.funtimes909.serverseekerv2.builders.Masscan;
 import xyz.funtimes909.serverseekerv2.builders.Mod;
@@ -19,7 +22,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -32,9 +34,24 @@ public class ScanManager {
     public static void scan() {
         List<Masscan> serverList = MasscanUtils.parse(Main.masscanOutput);
         if (serverList == null) return;
-
         size = serverList.size();
-        for (Masscan server : serverList) {
+
+        ProgressBarStyle style = ProgressBarStyle.builder()
+                .leftBracket("[")
+                .rightBracket("]")
+                .block('=')
+                .rightSideFractionSymbol('>')
+                .build();
+
+        ProgressBarBuilder bar = new ProgressBarBuilder()
+                .clearDisplayOnFinish()
+                .setStyle(style)
+                .showSpeed()
+                .setTaskName("Remaining Servers")
+                .continuousUpdate()
+                .setInitialMax(size);
+
+        for (Masscan server : ProgressBar.wrap(serverList, bar)) {
             Runnable task = () -> {
                 try {
                     String ip = server.ip();
@@ -52,7 +69,7 @@ public class ScanManager {
                     try (Socket so = Connect.connect(ip, port)) {
                         loginAttempt = QuickLogin.quickLogin(
                                 so,
-                                // Get the protocol version of the server from the handshake we did with it
+                                // Get the protocol version of the server from the handshake
                                 parsedJson.get("version").getAsJsonObject().get("protocol").getAsInt()
                         );
                     } catch (Exception ignored) { } // Even if the login method failed, still log the rest of the info

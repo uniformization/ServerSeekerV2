@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MasscanUtils {
-    public static boolean masscanRunning;
-
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Masscan.class, (JsonDeserializer<Masscan>) (jsonElement, type, ctx) -> {
                 JsonObject obj = jsonElement.getAsJsonObject();
@@ -40,10 +38,8 @@ public class MasscanUtils {
 
         try {
             Main.logger.info("Starting masscan. Press Control+C to stop the scan");
-            masscanRunning = true;
             Process process = processBuilder.start();
             process.waitFor();
-            masscanRunning = false;
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +54,6 @@ public class MasscanUtils {
             int exitCode = process.waitFor();
             return exitCode == 0;
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
             return false;
         }
     }

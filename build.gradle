@@ -22,6 +22,9 @@ dependencies {
     // Encryption
     implementation("org.bouncycastle:bcutil-jdk18on:1.79")
 
+    // Progress bars
+    implementation("me.tongfei:progressbar:0.10.1")
+
     // IP Lookups
     implementation("io.ipinfo:ipinfo-api:3.0.0")
     // The current version of ipinfo-aip uses v3.0.0 of okio which has GHSA-w33c-445m-f8w7 (5.9) (also known as CVE-2023-3635)

@@ -110,6 +110,15 @@ public class ScanManager {
                             country = parsedSecondaryResponse.get("country").getAsString();
                     }
                 }
+
+                // Don't insert empty fields to the database, insert null instead
+                if (reverseDns != null && reverseDns.isBlank()) {
+                    reverseDns = null;
+                }
+
+                if (organization != null && organization.isBlank()) {
+                    organization = null;
+                }
             }
 
             // Neoforge

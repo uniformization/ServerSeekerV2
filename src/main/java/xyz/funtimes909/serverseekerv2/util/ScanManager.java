@@ -47,7 +47,7 @@ public class ScanManager {
                 .clearDisplayOnFinish()
                 .setStyle(style)
                 .showSpeed()
-                .setTaskName("Remaining Servers")
+                .setTaskName("Scanning")
                 .continuousUpdate()
                 .setInitialMax(size);
 
@@ -117,7 +117,7 @@ public class ScanManager {
                     if (parsedPrimaryResponse.has("countryCode")) country = parsedPrimaryResponse.get("countryCode").getAsString();
                     if (parsedPrimaryResponse.has("org")) organization = parsedPrimaryResponse.get("org").getAsString();
                     if (parsedPrimaryResponse.has("as")) asn = parsedPrimaryResponse.get("as").getAsString();
-                } else if (!Main.token.isBlank()) {
+                } else {
                     String secondaryResponse = HttpUtils.ipinfo(address);
                     if (secondaryResponse != null) {
                         JsonObject parsedSecondaryResponse = JsonParser.parseString(secondaryResponse).getAsJsonObject();

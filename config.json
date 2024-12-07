@@ -1,7 +1,6 @@
 {
   "connection_timeout": 3000,
   "default_port": 25565,
-  "token": "IPINFO_TOKEN",
   "postgres_url": "localhost:5432/",
   "postgres_user": "postgres",
   "postgres_password": ":3",

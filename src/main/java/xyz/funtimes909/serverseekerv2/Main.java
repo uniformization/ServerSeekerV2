@@ -1,11 +1,16 @@
 package xyz.funtimes909.serverseekerv2;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xyz.funtimes909.serverseekerv2.builders.Config;
 import xyz.funtimes909.serverseekerv2.util.*;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.Security;
 
 public class Main {
@@ -13,7 +18,6 @@ public class Main {
     public static boolean ignoreBots;
     public static boolean ipLookups;
     public static boolean playerTracking;
-    public static String token;
     public static String postgresUrl;
     public static String postgresUser;
     public static String postgresPassword;
@@ -33,18 +37,22 @@ public class Main {
         }
 
         // Parse config file and set attributes
-        Config config = ConfigParser.parse(configFile);
-        connectionTimeout = config.getConnectionTimeout();
-        ignoreBots = config.getIgnoreBots();
-        ipLookups = config.getIpLookups();
-        playerTracking = config.getPlayerTracking();
-        token = config.getToken();
-        postgresUrl = config.getPostgresUrl();
-        postgresUser = config.getPostgresUser();
-        postgresPassword = config.getPostgresPassword();
-        masscanConf = config.getMasscanConfigLocation();
-        masscanOutput = config.getMasscanOutput();
+        try {
+            String content = Files.readString(Paths.get(configFile), StandardCharsets.UTF_8);
+            JsonObject config = JsonParser.parseString(content).getAsJsonObject();
 
+            connectionTimeout = config.get("connection_timeout").getAsInt();
+            ignoreBots = config.get("ignore_bots").getAsBoolean();
+            ipLookups = config.get("ip_lookups").getAsBoolean();
+            playerTracking = config.get("player_tracking").getAsBoolean();
+            postgresUrl = config.get("postgres_url").getAsString();
+            postgresUser = config.get("postgres_user").getAsString();
+            postgresPassword = config.get("postgres_password").getAsString();
+            masscanConf = config.get("masscan_conf").getAsString();
+            masscanOutput = config.get("masscan_output").getAsString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         // Warn user about configs should some of them not exist
         if (postgresUrl.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
         if (masscanConf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");

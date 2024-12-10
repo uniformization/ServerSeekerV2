@@ -53,6 +53,7 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         // Warn user about configs should some of them not exist
         if (postgresUrl.isBlank()) throw new RuntimeException("Error! No postgres URL specified!");
         if (masscanConf.isBlank()) throw new RuntimeException("Error! No masscan configuration specified!");

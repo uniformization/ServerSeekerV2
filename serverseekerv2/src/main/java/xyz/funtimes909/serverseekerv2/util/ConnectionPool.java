@@ -10,7 +10,7 @@ public class ConnectionPool {
     private static final BasicDataSource dataSource = new BasicDataSource();
 
     static {
-        dataSource.setUrl("jdbc:postgresql://" + Main.postgresUrl);
+        dataSource.setUrl("jdbc:postgresql://" + Main.postgresUrl + "postgres");
         dataSource.setPassword(Main.postgresPassword);
         dataSource.setUsername(Main.postgresUser);
     }

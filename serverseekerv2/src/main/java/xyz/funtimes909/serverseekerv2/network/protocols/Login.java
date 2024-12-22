@@ -31,8 +31,8 @@ import java.util.UUID;
 
 public class Login {
     // The default username & uuid to attempt to login to servers if none is given
-    public static final String username = "Herobrine";
-    public static final UUID uuid = UUID.fromString("f84c6a79-0a4e-45e0-879b-cd49ebd4c4e2");
+    public static final String username = "ServerSeekerV2";
+    public static final UUID uuid = UUID.fromString("e7374c29-382a-4a2d-8fb0-7623dca0c6ea");
     public static final List<Byte> REQUEST = PacketFormatter.encodePacket(0, username, uuid);
 
     // NOTE: This is only for testing. Once deployed, the BC provider will be added in the main function

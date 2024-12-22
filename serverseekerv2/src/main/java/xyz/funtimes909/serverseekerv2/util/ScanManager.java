@@ -59,10 +59,8 @@ public class ScanManager {
                         parsedJson = JsonParser.parseString(json).getAsJsonObject();
                     }
 
-                    if (parsedJson == null) return;
-
                     // Servers close connection after handshake, we need to make a new socket
-                    LoginAttempt loginAttempt = LoginAttempt.UNKNOWN;
+                    LoginAttempt loginAttempt;
                     try (Socket so = Connect.connect(address, port)) {
                         loginAttempt = QuickLogin.quickLogin(
                                 so,

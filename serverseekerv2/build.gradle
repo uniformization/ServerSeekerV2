@@ -19,6 +19,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.4")
     implementation("org.apache.commons:commons-dbcp2:2.12.0")
     implementation("ch.qos.logback:logback-classic:1.5.12")
+    implementation project(':core')
     // Encryption
     implementation("org.bouncycastle:bcutil-jdk18on:1.79")
 
@@ -45,7 +46,6 @@ jar {
         )
     }
 }
-
 
 test {
     useJUnitPlatform()

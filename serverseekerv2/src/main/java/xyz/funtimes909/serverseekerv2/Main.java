@@ -5,13 +5,19 @@ import com.google.gson.JsonParser;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xyz.funtimes909.serverseekerv2.util.*;
+import xyz.funtimes909.serverseekerv2.util.ConnectionPool;
+import xyz.funtimes909.serverseekerv2.util.MasscanUtils;
+import xyz.funtimes909.serverseekerv2.util.PlayerTracking;
+import xyz.funtimes909.serverseekerv2.util.ScanManager;
+import xyz.funtimes909.serverseekerv2_core.database.Database;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Security;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Main {
     public static int connectionTimeout;
@@ -63,7 +69,13 @@ public class Main {
 
         // Add the bouncy castle provider
         Security.addProvider(new BouncyCastleProvider());
-        Database.init();
+
+        // Initialize database Tables and Indexes
+        try (Connection conn = ConnectionPool.getConnection()) {
+            Database.init(conn);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         // TODO Make this not bad
         while (true) {

@@ -4,7 +4,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import xyz.funtimes909.serverseekerv2.Main;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

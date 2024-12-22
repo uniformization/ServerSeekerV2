@@ -5,11 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.PacketUtils;
-import xyz.funtimes909.serverseekerv2.types.LoginAttempt;
 import xyz.funtimes909.serverseekerv2.types.varlen.VarInt;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarString;
-import xyz.funtimes909.serverseekerv2.types.varlen.VarUUID;
 import xyz.funtimes909.serverseekerv2.util.PacketFormatter;
+import xyz.funtimes909.serverseekerv2_core.types.LoginAttempt;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,7 +28,7 @@ public class QuickLogin {
             Login.username // Username
     );
 
-    /** A really rudimentary login method that can check some basic stats about the server */
+    /* A really rudimentary login method that can check some basic stats about the server */
     public static LoginAttempt quickLogin(Socket so, int protocol) {
         try (
                 OutputStream out = so.getOutputStream();

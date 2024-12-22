@@ -10,9 +10,13 @@ import xyz.funtimes909.serverseekerv2.builders.Masscan;
 import xyz.funtimes909.serverseekerv2.network.Connect;
 import xyz.funtimes909.serverseekerv2.network.protocols.Handshake;
 import xyz.funtimes909.serverseekerv2.network.protocols.QuickLogin;
+import xyz.funtimes909.serverseekerv2_core.database.Database;
+import xyz.funtimes909.serverseekerv2_core.records.Server;
 import xyz.funtimes909.serverseekerv2_core.types.LoginAttempt;
+import xyz.funtimes909.serverseekerv2_core.util.ServerObjectBuilder;
 
 import java.net.Socket;
+import java.sql.Connection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,6 +58,7 @@ public class ScanManager {
                         String json = Handshake.ping(so);
                         parsedJson = JsonParser.parseString(json).getAsJsonObject();
                     }
+
                     if (parsedJson == null) return;
 
                     // Servers close connection after handshake, we need to make a new socket
@@ -64,7 +69,20 @@ public class ScanManager {
                                 // Get the protocol version of the server from the handshake
                                 parsedJson.get("version").getAsJsonObject().get("protocol").getAsInt()
                         );
-                    } catch (Exception ignored) { } // Even if the login method failed, still log the rest of the info
+                    } // Even if the login method failed, still log the rest of the info
+
+                    // Build server using server ping and the loginAttempt
+                    Server builtServer = ServerObjectBuilder.buildServerFromPing(
+                            address,
+                            port,
+                            parsedJson,
+                            loginAttempt
+                    );
+
+                    if (builtServer == null) return;
+
+                    Connection conn = ConnectionPool.getConnection();
+                    Database.updateServer(conn, builtServer);
                 } catch (Exception ignored) {
                 } finally {
                     lock.release();

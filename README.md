@@ -13,7 +13,11 @@
 ServerSeekerV2 is a full rewrite of the original ServerSeeker in Java, it reads output from [masscan](https://github.com/robertdavidgraham/masscan).  
 Using that as input it asynchronously pings each IP address, on the port returned with a [Server List Ping](https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Server_List_Ping) which returns the servers information, this information then gets stored in a PostgreSQL database.
 
-ServerSeekerV2 is **NOT** associated with the original ServerSeeker at all, the original is hosted by a third party.
+ServerSeekerV2 is **NOT** associated with the original ServerSeeker, the original is hosted by a third party.
+
+Currently, the only IP address used by me to scan for servers is ``154.213.192.15`` if you are seeing join requests in your server from the same username but a different IP address, it is not me.
+
+If you wish to request a server be removed from the public database and prevented from being scanned again, join my [Discord Server](https://discord.gg/wYTe2ZwD7g) and message ``@funtimes909`` directly.
 
 Unlike the original ServerSeeker, V2 has some extra features:
 - Basic whitelist checking

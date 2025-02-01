@@ -29,7 +29,7 @@ Some longer term goals I would like to add:
 
 
 - Q: How can I protect my server?
-- A: Enable a whitelist for your server, a whitelist allows only specified players to join your server, run ``/whitelist on`` and then ``/whitelist add <player>`` for every player that will join your server. Additionally, setting "online-mode" to false in the ``server.properties`` file helps a lot
+- A: Enable a whitelist for your server, a whitelist allows only specified players to join your server, run ``/whitelist on`` and then ``/whitelist add <player>`` for every player that will join your server. Additionally, setting "online-mode" to true in the ``server.properties`` file helps a lot
 
 
 - Q: Why?

@@ -24,6 +24,9 @@ Some longer term goals I would like to add:
 - Subproject to automatically log in to unwhitelisted servers with accounts from the account pool and send a friendly message in chat warning of being unprotected
 
 ## FAQ
+- Q: What is this?
+- A: ServerSeekerV2 is a faster version of the original ServerSeeker, it pings around 4 billion IPv4 addresses every few hours and attempts to join Minecraft servers on the ones that respond. This process is repeated over and over again.
+
 - Q: How can I get my server removed?
 - A: Join my [Matrix Space](https://matrix.to/#/#projects:funtimes909.xyz) or [Discord Server](https://discord.gg/wYTe2ZwD7g) and ping me or someone with moderator privileges asking for it to be removed
 
@@ -33,7 +36,7 @@ Some longer term goals I would like to add:
 
 
 - Q: Why?
-- A: As mentioned above, the previous owner of the original ServerSeeker, sold it to a third party, that got the discord bot and discord server terminated within a month of the sale. At the time I was looking for a project to sink my endless amounts of free time into, so shortly after the sale, I started developing this :)
+- A: As mentioned above, the previous owner of the original ServerSeeker, sold it to a third party, that got the discord bot and server terminated within a month of the sale (lmfao). At the time I was looking for a project to sink my endless amounts of free time into, so shortly after the sale, I started developing this :)
 
 ## Related projects
 - [Discord Bot](https://git.funtimes909.xyz/Funtimes909/ServerSeekerV2-Discord-Bot)

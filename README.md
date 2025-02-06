@@ -9,7 +9,7 @@ ServerSeekerV2 is a better version of the original ServerSeeker. After being sol
 
 Currently, the only IP address used by me to scan for servers is ``45.135.194.65`` if you are seeing join requests in your server from the same username but a different IP address, it is not me.
 
-If you wish to request a server be removed from the public database and prevented from being scanned again, join my [Discord Server](https://discord.gg/wYTe2ZwD7g) or [Matrix Space](https://matrix.to/#/#projects:funtimes909.xyz) and message ``@funtimes909`` directly.
+If you wish to request a server be removed from the public database and prevented from being scanned again, join my [Matrix Space](https://matrix.to/#/#projects:funtimes909.xyz) (**Much preferred**) or [Discord Server](https://discord.gg/wYTe2ZwD7g) and message ``@me:funtimes909.xyz`` directly.
 
 Unlike the original ServerSeeker, V2 has some extra features:
 - Basic whitelist checking
@@ -28,7 +28,7 @@ Some longer term goals I would like to add:
 - A: ServerSeekerV2 is a faster version of the original ServerSeeker, it pings around 4 billion IPv4 addresses every few hours and attempts to join Minecraft servers on the ones that respond. This process is repeated over and over again.
 
 - Q: How can I get my server removed?
-- A: Join my [Matrix Space](https://matrix.to/#/#projects:funtimes909.xyz) or [Discord Server](https://discord.gg/wYTe2ZwD7g) and ping me or someone with moderator privileges asking for it to be removed
+- A: Join my [Matrix Space](https://matrix.to/#/#projects:funtimes909.xyz) (**Much preferred**) or [Discord Server](https://discord.gg/wYTe2ZwD7g) and ping ``@me:funtimes909.xyz`` or someone with moderator privileges asking for it to be removed.
 
 
 - Q: How can I protect my server?
@@ -39,8 +39,8 @@ Some longer term goals I would like to add:
 - A: As mentioned above, the previous owner of the original ServerSeeker, sold it to a third party, that got the discord bot and server terminated within a month of the sale (lmfao). At the time I was looking for a project to sink my endless amounts of free time into, so shortly after the sale, I started developing this :)
 
 ## Related projects
-- [Discord Bot](https://git.funtimes909.xyz/Funtimes909/ServerSeekerV2-Discord-Bot)
-- [PyAPI](https://git.funtimes909.xyz/Funtimes909/ServerSeekerV2-PyAPI)
+- [Discord Bot](https://git.funtimes909.xyz/ServerSeekerV2/ServerSeekerV2-Discord-Bot)
+- [PyAPI](https://git.funtimes909.xyz/ServerSeekerV2/ServerSeekerV2-PyAPI)
 
 ## Storing data in the database
 To store information in a database you will need to set up PostgreSQL:  

@@ -30,9 +30,11 @@ Some longer term goals I would like to add:
 - Q: How can I get my server removed?
 - A: Join my [Matrix Space](https://matrix.to/#/#projects:funtimes909.xyz) and ping ``@me:funtimes909.xyz`` or someone with moderator privileges asking for it to be removed.
 
+- Q: I have a dynamic IP address, how can I get my server removed?
+- A: Since I can only remove one address at a time, constantly updating the exclude list everytime your IP address changes isn't feasible. To prevent ServerSeekerV2 from connecting to your server, you can use something like nftables or UFW to prevent my IP address from connecting to your server in the first place.
 
 - Q: How can I protect my server?
-- A: Enable a whitelist for your server, a whitelist allows only specified players to join your server, run ``/whitelist on`` and then ``/whitelist add <player>`` for every player that will join your server. Additionally, setting "online-mode" to true in the ``server.properties`` file helps a lot
+- A: Enable a whitelist for your server, a whitelist allows only specified players to join your server, run ``/whitelist on`` and then ``/whitelist add <player>`` for every player that will join your server. Additionally, setting "online-mode" to true in the ``server.properties`` file helps a lot by enforcing that every player must own a copy of the game
 
 
 - Q: Why?

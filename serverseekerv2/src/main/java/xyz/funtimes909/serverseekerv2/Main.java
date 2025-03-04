@@ -42,6 +42,12 @@ public class Main {
             configFile = args[1];
         }
 
+        boolean skipFirstScan = false;
+        for (String arg : args) {
+            if (arg.equals("--skipFirstScan"))
+                skipFirstScan = true;
+        }
+
         // Parse config file and set attributes
         try {
             String content = Files.readString(Paths.get(configFile), StandardCharsets.UTF_8);
@@ -79,7 +85,10 @@ public class Main {
 
         // TODO Make this not bad
         while (true) {
-            MasscanUtils.run();
+            if (!skipFirstScan) {
+                MasscanUtils.run();
+            }
+            skipFirstScan = false;
             if (playerTracking) {
                 PlayerTracking.parseList("tracks.json");
                 logger.debug("Loading {} players from tracks.json", PlayerTracking.playerTracker.size());

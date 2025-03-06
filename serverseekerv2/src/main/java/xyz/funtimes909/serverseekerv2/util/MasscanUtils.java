@@ -67,4 +67,9 @@ public class MasscanUtils {
             throw new RuntimeException("Masscan output not found or no servers were found, Aborting scan!");
         }
     }
+
+    public static Masscan parseServer(String json) {
+        Type server = new TypeToken<Masscan>(){}.getType();
+        return GSON.fromJson(json, server);
+    }
 }
